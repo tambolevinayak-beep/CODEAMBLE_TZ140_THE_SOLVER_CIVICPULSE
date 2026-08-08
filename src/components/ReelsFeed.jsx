@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { ThumbsUp, MessageCircle, Share2, MapPin, Video, Play, Volume2, VolumeX, AlertTriangle, Send, X } from 'lucide-react';
 import { CATEGORIES } from '../data/mockData';
 import { getUserById, voteIssue, addComment } from '../data/store';
@@ -238,8 +239,12 @@ export default function ReelsFeed({ issues, onIssueClick }) {
         const photoUrl = !videoUrl && issue.evidence && issue.evidence.find(url => typeof url === 'string' && (url.startsWith('data:image/') || url.startsWith('http')));
 
         return (
-          <div
+          <motion.div
             key={issue.id}
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.5, type: 'spring', bounce: 0.3 }}
             className="reel-card"
             ref={el => reelRefs.current[idx] = el}
             data-reel-index={idx}
@@ -359,7 +364,7 @@ export default function ReelsFeed({ issues, onIssueClick }) {
                 onClose={() => setCommentOpenId(null)}
               />
             )}
-          </div>
+          </motion.div>
         );
       })}
     </div>

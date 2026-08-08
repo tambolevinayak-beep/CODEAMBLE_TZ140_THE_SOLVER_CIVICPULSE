@@ -1,17 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Video, Sparkles, Filter } from 'lucide-react';
-import { getAllIssues } from '../data/store';
+import { getFeedProblems } from '../data/store';
+import { useAuth } from '../lib/AuthContext';
 import ReelsFeed from '../components/ReelsFeed';
 import PageTransition from '../components/PageTransition';
 
 export default function ReelsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [issues, setIssues] = useState([]);
 
   useEffect(() => {
-    setIssues(getAllIssues());
-  }, []);
+    // Recommendation algorithm: sort by user's location, recency, and support velocity
+    const userLocality = user?.locality_id || 'kothrud';
+    // If the user has lat/lng, we'd pass them. The demo user typically has a locality_id.
+    const rankedIssues = getFeedProblems(userLocality, null, null);
+    setIssues(rankedIssues);
+  }, [user]);
 
   // Filter issues that have video or photos suitable for reels
   const reelsIssues = issues.filter(i => i.video_url || (i.evidence && i.evidence.length > 0));
