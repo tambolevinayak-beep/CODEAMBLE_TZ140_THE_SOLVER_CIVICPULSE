@@ -1,8 +1,9 @@
+'use client';
 import { useState, useRef } from 'react';
 import { X, MapPin, Camera, Video, Upload, AlertCircle, Film, Image, CheckCircle, Trash2 } from 'lucide-react';
-import { createIssue, getAllLocalities } from '../data/store';
-import { supabase } from '../lib/supabase';
-import { useAuth } from '../lib/AuthContext';
+import { createIssue, getAllLocalities } from '@/data/store';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/lib/AuthContext';
 
 const MAX_VIDEO_SIZE_MB = 50;
 const MAX_VIDEO_DURATION_SEC = 60;

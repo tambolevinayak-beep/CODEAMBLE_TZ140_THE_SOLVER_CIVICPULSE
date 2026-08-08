@@ -1,3 +1,4 @@
+'use client';
 /**
  * SkeletonCard — shimmer skeleton loaders for feed and lists
  */

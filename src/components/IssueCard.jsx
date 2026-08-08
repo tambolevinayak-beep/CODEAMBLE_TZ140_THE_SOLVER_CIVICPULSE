@@ -1,8 +1,10 @@
+'use client';
 import { useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
+
 import { MapPin, ThumbsUp, MessageCircle, Clock } from 'lucide-react';
-import { CATEGORIES } from '../data/mockData';
-import { getUserById } from '../data/store';
+import { CATEGORIES } from '@/data/mockData';
+import { getUserById } from '@/data/store';
 import { apply3DTilt } from '../utils/animeEngine';
 
 function timeAgo(dateStr) {
@@ -54,7 +56,7 @@ export default function IssueCard({ issue }) {
   }, []);
 
   return (
-    <Link ref={cardRef} to={`/issue/${issue.id}`} className="issue-card card-3d">
+    <Link ref={cardRef} href={`/issue/${issue.id}`} className="issue-card card-3d">
       <div className={`priority-bar ${priorityClass(issue.severity)}`} style={{ alignSelf: 'stretch' }} />
       <div className="issue-card-body">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>

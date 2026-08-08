@@ -1,11 +1,12 @@
+'use client';
 import { useState, useEffect } from 'react';
 import {
   Sparkles, MapPin, Check, ArrowRight, ArrowLeft, User, Phone,
   Briefcase, Navigation, Heart, X
 } from 'lucide-react';
-import { getAllLocalities, events } from '../data/store';
-import { useAuth } from '../lib/AuthContext';
-import { supabase } from '../lib/supabase';
+import { getAllLocalities, events } from '@/data/store';
+import { useAuth } from '@/lib/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 const INTEREST_CATEGORIES = [
   { id: 'pothole', label: 'Roads & Potholes', icon: '🛣️', color: '#002b49' },
@@ -61,7 +62,7 @@ export default function OnboardingSurvey({ isOpen, onClose, onComplete }) {
   useEffect(() => {
     if (!isOpen) return;
     // Pre-fill from existing data
-    const saved = localStorage.getItem(QUIZ_PREFS_KEY);
+    const saved = typeof window !== 'undefined' ? localStorage.getItem(QUIZ_PREFS_KEY) : null;
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -111,8 +112,8 @@ export default function OnboardingSurvey({ isOpen, onClose, onComplete }) {
       completedAt: new Date().toISOString(),
     };
 
-    localStorage.setItem(QUIZ_PREFS_KEY, JSON.stringify(prefs));
-    localStorage.setItem(PROFILE_KEY, 'true');
+    (typeof window !== 'undefined' && localStorage.setItem(QUIZ_PREFS_KEY, JSON.stringify(prefs)));
+    (typeof window !== 'undefined' && localStorage.setItem(PROFILE_KEY, 'true'));
 
     if (supabase && user?.id) {
       try {

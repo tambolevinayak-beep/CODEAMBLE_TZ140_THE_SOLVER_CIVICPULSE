@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "oxlint",
-    "preview": "vite preview"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "oxlint"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
@@ -16,17 +16,18 @@
     "framer-motion": "^12.42.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.21.0",
+    "next": "^15.1.7",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-leaflet": "^5.0.0",
-    "react-router-dom": "^7.18.0",
     "recharts": "^3.9.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.2",
+    "autoprefixer": "^10.5.4",
     "oxlint": "^1.69.0",
-    "vite": "^8.1.0"
+    "postcss": "^8.5.26",
+    "tailwindcss": "^3.4.19"
   }
 }

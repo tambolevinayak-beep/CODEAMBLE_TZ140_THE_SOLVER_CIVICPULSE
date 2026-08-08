@@ -1,12 +1,15 @@
+'use client';
 import { useState, useEffect } from 'react';
-import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
+import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
+
 import {
   Activity, LayoutDashboard, AlertCircle, BarChart3, Video, User,
   LogOut, Menu, ChevronLeft, ChevronRight, Shield, Scale, Users, Settings
 } from 'lucide-react';
-import { useAuth } from '../lib/AuthContext';
-import { getRoleLabel } from '../lib/supabase';
-import NotificationsMenu from '../components/NotificationsMenu';
+import { useAuth } from '@/lib/AuthContext';
+import { getRoleLabel } from '@/lib/supabase';
+import NotificationsMenu from '@/components/NotificationsMenu';
 
 const SIDEBAR_KEY = 'civicpulse_admin_sidebar_collapsed';
 
@@ -14,10 +17,11 @@ const SIDEBAR_KEY = 'civicpulse_admin_sidebar_collapsed';
  * AdminLayout — Collapsible sidebar layout for both Admin and Sub-Admin.
  * Matches the citizen sidebar pattern with hide/show toggle.
  */
-export default function AdminLayout() {
+export default function AdminLayout({ children }) {
   const { user, role, signOut } = useAuth();
-  const navigate = useNavigate();
-  const [collapsed, setCollapsed] = useState(() => localStorage.getItem(SIDEBAR_KEY) === 'true');
+  const navigate = useRouter();
+  const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState(() => typeof window !== 'undefined' ? localStorage.getItem(SIDEBAR_KEY)  === 'true' : null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isAdmin = role === 'admin';
@@ -38,14 +42,14 @@ export default function AdminLayout() {
   function toggleSidebar() {
     setCollapsed(prev => {
       const next = !prev;
-      localStorage.setItem(SIDEBAR_KEY, String(next));
+      (typeof window !== 'undefined' && localStorage.setItem(SIDEBAR_KEY, String(next)));
       return next;
     });
   }
 
   async function handleLogout() {
     await signOut();
-    navigate('/auth');
+    navigate.push('/auth');
   }
 
   useEffect(() => {
@@ -105,21 +109,21 @@ export default function AdminLayout() {
         <nav className="sidebar-nav">
           <div className="sidebar-nav-section">
             {!collapsed && <div className="sidebar-section-label">Management</div>}
-            {navLinks.map(link => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                end={link.end}
-                className={({ isActive }) =>
-                  `sidebar-nav-item ${isActive ? 'active' : ''} ${collapsed ? 'collapsed' : ''}`
-                }
-                onClick={() => setMobileOpen(false)}
-                title={collapsed ? link.label : undefined}
-              >
-                <link.icon size={18} className="sidebar-nav-icon" />
-                {!collapsed && <span className="sidebar-nav-label">{link.label}</span>}
-              </NavLink>
-            ))}
+            {navLinks.map(link => {
+              const isActive = link.end ? pathname === link.to : pathname?.startsWith(link.to);
+              return (
+                <Link
+                  key={link.to}
+                  href={link.to}
+                  className={`sidebar-nav-item ${isActive ? 'active' : ''} ${collapsed ? 'collapsed' : ''}`}
+                  onClick={() => setMobileOpen(false)}
+                  title={collapsed ? link.label : undefined}
+                >
+                  <link.icon size={18} className="sidebar-nav-icon" />
+                  {!collapsed && <span className="sidebar-nav-label">{link.label}</span>}
+                </Link>
+              );
+            })}
           </div>
         </nav>
 
@@ -164,7 +168,7 @@ export default function AdminLayout() {
         </header>
 
         <main id="main-content" className="citizen-page-content mesh-bg">
-          <Outlet />
+          {children}
         </main>
       </div>
     </div>

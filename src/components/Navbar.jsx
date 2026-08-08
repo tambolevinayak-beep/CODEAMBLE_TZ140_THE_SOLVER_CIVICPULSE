@@ -1,7 +1,10 @@
-import { Link, NavLink, useLocation } from 'react-router-dom';
+'use client';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
+
 import { Activity, Bell, Menu, X } from 'lucide-react';
 import { useState } from 'react';
-import { useAuth } from '../lib/AuthContext';
+import { useAuth } from '@/lib/AuthContext';
 
 /**
  * Standalone Navbar - used in non-layout contexts if needed.
@@ -36,7 +39,7 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-inner">
-        <Link to="/" className="navbar-brand">
+        <Link href="/" className="navbar-brand">
           <Activity size={24} />
           <span>CivicPulse</span>
         </Link>
@@ -44,12 +47,12 @@ export default function Navbar() {
         <ul className="navbar-links">
           {navLinks.map(link => (
             <li key={link.to}>
-              <NavLink
-                to={link.to}
+              <Link
+                href={link.to}
                 className={({ isActive }) => isActive ? 'active' : ''}
               >
                 {link.label}
-              </NavLink>
+              </Link>
             </li>
           ))}
         </ul>
@@ -81,14 +84,14 @@ export default function Navbar() {
           zIndex: 'var(--z-fixed)',
         }}>
           {navLinks.map(link => (
-            <NavLink
+            <Link
               key={link.to}
-              to={link.to}
+              href={link.to}
               className="sidebar-link"
               onClick={() => setMobileOpen(false)}
             >
               {link.label}
-            </NavLink>
+            </Link>
           ))}
         </div>
       )}

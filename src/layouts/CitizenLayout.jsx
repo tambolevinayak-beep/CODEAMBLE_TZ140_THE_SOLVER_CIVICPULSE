@@ -1,10 +1,12 @@
+'use client';
 import { useState, useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
+
 import { LogOut, Menu, UserCheck } from 'lucide-react';
-import { useAuth } from '../lib/AuthContext';
-import { isStaff } from '../lib/permissions';
-import CitizenSidebar from '../components/CitizenSidebar';
-import BottomNav from '../components/BottomNav';
+import { useAuth } from '@/lib/AuthContext';
+import { isStaff } from '@/lib/permissions';
+import CitizenSidebar from '@/components/CitizenSidebar';
+import BottomNav from '@/components/BottomNav';
 
 const SIDEBAR_KEY = 'civicpulse_sidebar_collapsed';
 
@@ -12,23 +14,23 @@ const SIDEBAR_KEY = 'civicpulse_sidebar_collapsed';
  * CitizenLayout — Public/Citizen dashboard with collapsible left sidebar + mobile drawer/bottom nav.
  * Connects directly to CitizenSidebar with user-requested menu order.
  */
-export default function CitizenLayout() {
+export default function CitizenLayout({ children }) {
   const { user, role, signOut, switchRole } = useAuth();
-  const navigate = useNavigate();
-  const [collapsed, setCollapsed] = useState(() => localStorage.getItem(SIDEBAR_KEY) === 'true');
+  const navigate = useRouter();
+  const [collapsed, setCollapsed] = useState(() => typeof window !== 'undefined' ? localStorage.getItem(SIDEBAR_KEY)  === 'true' : null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   function toggleSidebar() {
     setCollapsed(prev => {
       const next = !prev;
-      localStorage.setItem(SIDEBAR_KEY, String(next));
+      (typeof window !== 'undefined' && localStorage.setItem(SIDEBAR_KEY, String(next)));
       return next;
     });
   }
 
   async function handleLogout() {
     await signOut();
-    navigate('/auth');
+    navigate.push('/auth');
   }
 
   useEffect(() => {
@@ -71,7 +73,7 @@ export default function CitizenLayout() {
                     if (user) {
                       user.locality_id = newLocality;
                     }
-                    localStorage.setItem('civicpulse_user_locality', newLocality);
+                    (typeof window !== 'undefined' && localStorage.setItem('civicpulse_user_locality', newLocality));
                     window.dispatchEvent(new CustomEvent('localityChanged', { detail: newLocality }));
                   }}
                   style={{
@@ -94,13 +96,23 @@ export default function CitizenLayout() {
                 </select>
               </div>
 
+              {/* Quick Navigation Shortcuts */}
+              <button
+                onClick={() => navigate.push('/intro')}
+                className="btn-farm btn-farm-outline"
+                style={{ padding: '4px 10px', fontSize: '12px' }}
+                title="View Platform Intro Page"
+              >
+                Intro Page
+              </button>
+
               {/* Quick Role Switcher */}
               <select
                 className="form-input btn-sm"
                 value={role || 'citizen'}
                 onChange={e => {
                   switchRole(e.target.value);
-                  if (isStaff(e.target.value)) navigate('/control-panel');
+                  if (isStaff(e.target.value)) navigate.push('/control-panel');
                 }}
                 style={{ padding: '4px 8px', fontSize: '12px', height: 'auto', background: 'var(--bg-tertiary)' }}
               >
@@ -118,7 +130,7 @@ export default function CitizenLayout() {
         </header>
 
         <main id="main-content" className="citizen-page-content">
-          <Outlet />
+          {children}
         </main>
 
         {/* ── Mobile Bottom Nav ── */}

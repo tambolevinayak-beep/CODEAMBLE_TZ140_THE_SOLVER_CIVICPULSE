@@ -1,4 +1,6 @@
-import { NavLink } from 'react-router-dom';
+'use client';
+import Link from 'next/link';
+
 import {
   LayoutDashboard, AlertCircle, Building2, Timer, BarChart3,
   FileText, Settings, Scale
@@ -25,14 +27,14 @@ export default function Sidebar() {
         <div key={section.section} className="sidebar-section">
           <div className="sidebar-label">{section.section}</div>
           {section.links.map(link => (
-            <NavLink
+            <Link
               key={link.to}
-              to={link.to}
+              href={link.to}
               className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
             >
               <link.icon size={18} />
               {link.label}
-            </NavLink>
+            </Link>
           ))}
         </div>
       ))}

@@ -9,7 +9,7 @@ import {
   SUPPORT_THRESHOLD, MAX_DAILY_POSTS, MAX_FLAGS_TO_HIDE
 } from './mockData';
 import { LOCALITIES, getNearestLocality } from './localities';
-import { supabase } from '../lib/supabase';
+import { supabase } from '@/lib/supabase';
 
 const STORE_KEY = 'civicpulse_store_v1';
 const INITIALIZED_KEY = 'civicpulse_initialized_v1';
@@ -79,7 +79,7 @@ export const events = new EventBus();
 function loadStore() {
   if (cachedState) return cachedState;
   try {
-    const raw = localStorage.getItem(STORE_KEY);
+    const raw = typeof window !== 'undefined' ? localStorage.getItem(STORE_KEY) : null;
     if (raw) {
       cachedState = JSON.parse(raw);
       rebuildIndexes(cachedState);
@@ -96,14 +96,14 @@ function saveStore(state) {
   // Debounce disk I/O for zero latency
   if (saveTimeout) clearTimeout(saveTimeout);
   saveTimeout = setTimeout(() => {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+    try { (typeof window !== 'undefined' && localStorage.setItem(STORE_KEY, JSON.stringify(state))); }
     catch (e) { console.error('Store save error:', e); }
   }, 50);
 }
 
 // ── Initialize ──
 export function initializeStore() {
-  const isInit = localStorage.getItem(INITIALIZED_KEY);
+  const isInit = typeof window !== 'undefined' ? localStorage.getItem(INITIALIZED_KEY) : null;
   if (isInit) {
     const data = loadStore();
     if (data) return data;
@@ -125,7 +125,7 @@ export function initializeStore() {
   };
 
   saveStore(state);
-  localStorage.setItem(INITIALIZED_KEY, 'true');
+  (typeof window !== 'undefined' && localStorage.setItem(INITIALIZED_KEY, 'true'));
   return state;
 }
 
@@ -624,8 +624,8 @@ export function setCurrentUser(userId) {
 // ── Reset ──
 export function resetStore() {
   cachedState = null;
-  localStorage.removeItem(STORE_KEY);
-  localStorage.removeItem(INITIALIZED_KEY);
+  (typeof window !== 'undefined' && localStorage.removeItem(STORE_KEY));
+  (typeof window !== 'undefined' && localStorage.removeItem(INITIALIZED_KEY));
   initializeStore();
   events.emit('storeReset');
 }

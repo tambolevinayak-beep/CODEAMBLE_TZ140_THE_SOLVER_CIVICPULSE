@@ -1,8 +1,9 @@
+'use client';
 import { useState, useEffect } from 'react';
 import { Sparkles, MapPin, Check, ArrowRight, X, Heart, Navigation } from 'lucide-react';
-import { getAllLocalities, events } from '../data/store';
-import { useAuth } from '../lib/AuthContext';
-import { supabase } from '../lib/supabase';
+import { getAllLocalities, events } from '@/data/store';
+import { useAuth } from '@/lib/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 const INTEREST_CATEGORIES = [
   { id: 'pothole', label: 'Roads & Potholes', icon: '🛣️' },
@@ -28,7 +29,7 @@ export default function PersonalizationQuizModal({ isOpen, onClose, onComplete }
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem('civicpulse_quiz_prefs');
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('civicpulse_quiz_prefs') : null;
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -56,7 +57,7 @@ export default function PersonalizationQuizModal({ isOpen, onClose, onComplete }
       completedAt: new Date().toISOString(),
     };
 
-    localStorage.setItem('civicpulse_quiz_prefs', JSON.stringify(prefs));
+    (typeof window !== 'undefined' && localStorage.setItem('civicpulse_quiz_prefs', JSON.stringify(prefs)));
 
     if (supabase && user?.id) {
       try {

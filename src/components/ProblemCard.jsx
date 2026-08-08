@@ -1,11 +1,13 @@
+'use client';
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
+
 import { MapPin, MessageCircle, Share2, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import SupportButton from './SupportButton';
 import StatusStepper from './StatusStepper';
-import { CATEGORIES, STATUSES } from '../data/mockData';
-import { getUserById, hasUserSupported, toggleSupport } from '../data/store';
-import { useAuth } from '../lib/AuthContext';
+import { CATEGORIES, STATUSES } from '@/data/mockData';
+import { getUserById, hasUserSupported, toggleSupport } from '@/data/store';
+import { useAuth } from '@/lib/AuthContext';
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
@@ -19,7 +21,7 @@ function timeAgo(dateStr) {
 }
 
 export default function ProblemCard({ problem, onUpdate }) {
-  const navigate = useNavigate();
+  const navigate = useRouter();
   const { user } = useAuth();
   const [currentMediaIdx, setCurrentMediaIdx] = useState(0);
   const cardRef = useRef(null);
@@ -50,6 +52,7 @@ export default function ProblemCard({ problem, onUpdate }) {
         title: problem.title,
         text: problem.description,
         url: `${window.location.origin}/problem/${problem.id}`,
+      });
     } else {
       navigator.clipboard.writeText(`${window.location.origin}/problem/${problem.id}`);
     }
@@ -80,7 +83,7 @@ export default function ProblemCard({ problem, onUpdate }) {
       {/* ── Media ── */}
       <div
         className="problem-card-media"
-        onClick={() => navigate(`/problem/${problem.id}`)}
+        onClick={() => navigate.push(`/problem/${problem.id}`)}
         style={{ cursor: 'pointer' }}
       >
         {mediaUrls.length > 0 ? (
@@ -158,7 +161,7 @@ export default function ProblemCard({ problem, onUpdate }) {
         />
         <button
           className="problem-card-action-btn"
-          onClick={() => navigate(`/problem/${problem.id}`)}
+          onClick={() => navigate.push(`/problem/${problem.id}`)}
         >
           <MessageCircle size={18} />
           <span>{problem.comment_count || 0}</span>
@@ -174,7 +177,7 @@ export default function ProblemCard({ problem, onUpdate }) {
       <div className="problem-card-body">
         <h3
           className="problem-card-title"
-          onClick={() => navigate(`/problem/${problem.id}`)}
+          onClick={() => navigate.push(`/problem/${problem.id}`)}
         >
           {problem.title}
         </h3>

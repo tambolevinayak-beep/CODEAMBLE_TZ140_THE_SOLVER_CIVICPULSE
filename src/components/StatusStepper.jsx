@@ -1,5 +1,6 @@
+'use client';
 import { CheckCircle, Circle, ChevronRight } from 'lucide-react';
-import { STATUS_ORDER } from '../data/mockData';
+import { STATUS_ORDER } from '@/data/mockData';
 
 const STATUS_META = {
   reported: { label: 'Reported', color: '#ef4444', icon: '📢' },

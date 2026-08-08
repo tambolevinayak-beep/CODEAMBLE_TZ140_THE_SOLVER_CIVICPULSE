@@ -1,7 +1,9 @@
+'use client';
 import { useState, useRef, useEffect } from 'react';
 import { Bell, CheckCircle, AlertTriangle, MessageCircle, Info } from 'lucide-react';
-import { useAuth } from '../lib/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/lib/AuthContext';
+import { useRouter } from 'next/navigation';
+
 
 const MOCK_NOTIFICATIONS = {
   citizen: [
@@ -21,7 +23,7 @@ const MOCK_NOTIFICATIONS = {
 
 export default function NotificationsMenu() {
   const { role } = useAuth();
-  const navigate = useNavigate();
+  const navigate = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -81,7 +83,7 @@ export default function NotificationsMenu() {
                 cursor: 'pointer',
                 transition: 'background 0.2s',
               }}
-              onClick={() => { setIsOpen(false); navigate(role === 'admin' ? '/admin/issues' : '/citizen'); }}
+              onClick={() => { setIsOpen(false); navigate.push(role === 'admin' ? '/admin/issues' : '/citizen'); }}
               >
                 <div style={{ flexShrink: 0, marginTop: '2px' }}>{notif.icon}</div>
                 <div>

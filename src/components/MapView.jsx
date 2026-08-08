@@ -1,8 +1,10 @@
+'use client';
 import { useEffect, useRef, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
+
 import { Search, Layers, Maximize2, Minimize2, MapPin, Sliders, Square, Circle, Shield, Sparkles, Navigation } from 'lucide-react';
 
 // Fix for default marker icons in React Leaflet
@@ -225,15 +227,15 @@ const TILE_LAYERS = {
  */
 export default function MapView({ issues = [], center = [18.5204, 73.8567], zoom = 13, onMarkerClick, showCustomizer = true }) {
   const mapRef = useRef(null);
-  const navigate = useNavigate();
+  const navigate = useRouter();
   const [mapCenter, setMapCenter] = useState(center);
   const [mapZoom, setMapZoom] = useState(zoom);
   const [tileLayer, setTileLayer] = useState('osm'); // Default to full colored OpenStreetMap
   const [showControls, setShowControls] = useState(false);
   
   // Customization state
-  const [mapShape, setMapShape] = useState(() => localStorage.getItem('civicpulse_map_shape') || 'rectangle'); // rectangle | rounded | circle
-  const [mapSize, setMapSize] = useState(() => localStorage.getItem('civicpulse_map_size') || 'full'); // small | medium | full
+  const [mapShape, setMapShape] = useState(() => typeof window !== 'undefined' ? localStorage.getItem('civicpulse_map_shape')  || 'rectangle' : null); // rectangle | rounded | circle
+  const [mapSize, setMapSize] = useState(() => typeof window !== 'undefined' ? localStorage.getItem('civicpulse_map_size')  || 'full' : null); // small | medium | full
   const [customHeight, setCustomHeight] = useState(() => parseInt(localStorage.getItem('civicpulse_map_height') || '600', 10));
 
   useEffect(() => {
@@ -258,12 +260,12 @@ export default function MapView({ issues = [], center = [18.5204, 73.8567], zoom
 
   function handleShapeChange(shape) {
     setMapShape(shape);
-    localStorage.setItem('civicpulse_map_shape', shape);
+    (typeof window !== 'undefined' && localStorage.setItem('civicpulse_map_shape', shape));
   }
 
   function handleSizeChange(size) {
     setMapSize(size);
-    localStorage.setItem('civicpulse_map_size', size);
+    (typeof window !== 'undefined' && localStorage.setItem('civicpulse_map_size', size));
   }
 
   const currentTile = TILE_LAYERS[tileLayer] || TILE_LAYERS.osm;
@@ -520,7 +522,7 @@ export default function MapView({ issues = [], center = [18.5204, 73.8567], zoom
                     </span>
                   </div>
                   <button
-                    onClick={() => navigate(`/citizen/issue/${issue.id}`)}
+                    onClick={() => navigate.push(`/citizen/issue/${issue.id}`)}
                     style={{
                       width: '100%',
                       padding: '6px 12px',

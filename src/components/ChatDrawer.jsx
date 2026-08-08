@@ -1,13 +1,14 @@
+'use client';
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, ArrowLeft, Send, Check, CheckCheck, Shield } from 'lucide-react';
-import { useAuth } from '../lib/AuthContext';
-import { getAllUsers } from '../data/store';
-import { supabase } from '../lib/supabase';
+import { useAuth } from '@/lib/AuthContext';
+import { getAllUsers } from '@/data/store';
+import { supabase } from '@/lib/supabase';
 
 // ── Real 1:1 user messages (persisted via Supabase or localStorage)
 const getInitialMessages = () => {
   try {
-    const saved = localStorage.getItem('civicpulse_real_chats');
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('civicpulse_real_chats') : null;
     return saved ? JSON.parse(saved) : {};
   } catch (e) {
     return {};
@@ -47,7 +48,7 @@ export default function ChatDrawer() {
 
   useEffect(() => {
     try {
-      localStorage.setItem('civicpulse_real_chats', JSON.stringify(messages));
+      (typeof window !== 'undefined' && localStorage.setItem('civicpulse_real_chats', JSON.stringify(messages)));
     } catch (e) { /* ignore quota */ }
   }, [messages]);
 

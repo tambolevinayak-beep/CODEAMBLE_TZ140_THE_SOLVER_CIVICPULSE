@@ -1,3 +1,4 @@
+'use client';
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase, isDemoMode } from './supabase';
 import { hasPermission, getDefaultPath, ROLES } from './permissions';
@@ -61,7 +62,7 @@ export function AuthProvider({ children }) {
   // Initialize auth state
   useEffect(() => {
     if (AUTH_DISABLED || isDemoMode) {
-      const savedSession = localStorage.getItem('civicpulse_demo_session');
+      const savedSession = typeof window !== 'undefined' ? localStorage.getItem('civicpulse_demo_session') : null;
       if (savedSession) {
         try {
           const session = JSON.parse(savedSession);
@@ -72,7 +73,7 @@ export function AuthProvider({ children }) {
           setLoading(false);
           return;
         } catch {
-          localStorage.removeItem('civicpulse_demo_session');
+          (typeof window !== 'undefined' && localStorage.removeItem('civicpulse_demo_session'));
         }
       }
       // Default to citizen
@@ -137,7 +138,7 @@ export function AuthProvider({ children }) {
       else if (email.includes('mod')) demoRole = 'moderator';
 
       const demoUser = DEMO_USERS[demoRole];
-      localStorage.setItem('civicpulse_demo_session', JSON.stringify({ role: demoRole }));
+      (typeof window !== 'undefined' && localStorage.setItem('civicpulse_demo_session', JSON.stringify({ role: demoRole })));
       setUser(demoUser);
       setRole(demoUser.role);
       setAssignedLocalityId(demoUser.assigned_locality_id);
@@ -163,7 +164,7 @@ export function AuthProvider({ children }) {
 
     if (isDemoMode) {
       const demoUser = { ...DEMO_USERS.citizen, name: name || 'New User', email };
-      localStorage.setItem('civicpulse_demo_session', JSON.stringify({ role: 'citizen' }));
+      (typeof window !== 'undefined' && localStorage.setItem('civicpulse_demo_session', JSON.stringify({ role: 'citizen' })));
       setUser(demoUser);
       setRole('citizen');
       return { user: demoUser, error: null };
@@ -231,7 +232,7 @@ export function AuthProvider({ children }) {
   // Sign out
   const signOut = useCallback(async () => {
     if (AUTH_DISABLED || isDemoMode) {
-      localStorage.removeItem('civicpulse_demo_session');
+      (typeof window !== 'undefined' && localStorage.removeItem('civicpulse_demo_session'));
       setUser(DEMO_USERS.citizen);
       setRole('citizen');
       setAssignedLocalityId(null);
@@ -252,7 +253,7 @@ export function AuthProvider({ children }) {
     setUser(demoUser);
     setRole(demoUser.role);
     setAssignedLocalityId(demoUser.assigned_locality_id);
-    localStorage.setItem('civicpulse_demo_session', JSON.stringify({ role: newRole }));
+    (typeof window !== 'undefined' && localStorage.setItem('civicpulse_demo_session', JSON.stringify({ role: newRole })));
   }, []);
 
   /**

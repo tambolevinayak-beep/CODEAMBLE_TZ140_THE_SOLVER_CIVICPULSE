@@ -1,12 +1,15 @@
+'use client';
 import { useState, useEffect } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
+
 import {
   Activity, LayoutDashboard, ClipboardList, Map, Building2, Users,
   Settings, LogOut, Menu, ChevronLeft, ChevronRight, Shield
 } from 'lucide-react';
-import { useAuth } from '../lib/AuthContext';
-import { getVisibleNavItems } from '../lib/permissions';
-import { getRoleLabel } from '../lib/supabase';
+import { useAuth } from '@/lib/AuthContext';
+import { getVisibleNavItems } from '@/lib/permissions';
+import { getRoleLabel } from '@/lib/supabase';
 
 const ICON_MAP = {
   LayoutDashboard, ClipboardList, Map, Building2, Users, Settings,
@@ -19,10 +22,11 @@ const SIDEBAR_KEY = 'civicpulse_cp_sidebar_collapsed';
  * Same components, different data scope based on role + assignedLocalityId.
  * Linear/Notion-style: calm, information-dense, professional.
  */
-export default function ControlPanelLayout() {
+export default function ControlPanelLayout({ children }) {
   const { user, role, assignedLocalityId, signOut, switchRole } = useAuth();
-  const navigate = useNavigate();
-  const [collapsed, setCollapsed] = useState(() => localStorage.getItem(SIDEBAR_KEY) === 'true');
+  const navigate = useRouter();
+  const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState(() => typeof window !== 'undefined' ? localStorage.getItem(SIDEBAR_KEY)  === 'true' : null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navItems = getVisibleNavItems(role);
@@ -30,14 +34,14 @@ export default function ControlPanelLayout() {
   function toggleSidebar() {
     setCollapsed(prev => {
       const next = !prev;
-      localStorage.setItem(SIDEBAR_KEY, String(next));
+      (typeof window !== 'undefined' && localStorage.setItem(SIDEBAR_KEY, String(next)));
       return next;
     });
   }
 
   async function handleLogout() {
     await signOut();
-    navigate('/auth');
+    navigate.push('/auth');
   }
 
   useEffect(() => {
@@ -88,20 +92,18 @@ export default function ControlPanelLayout() {
             {!collapsed && <div className="sidebar-section-label">Management</div>}
             {navItems.map(item => {
               const IconComponent = ICON_MAP[item.icon] || LayoutDashboard;
+              const isActive = item.end ? pathname === item.path : pathname?.startsWith(item.path);
               return (
-                <NavLink
+                <Link
                   key={item.path}
-                  to={item.path}
-                  end={item.end}
-                  className={({ isActive }) =>
-                    `sidebar-nav-item ${isActive ? 'active' : ''} ${collapsed ? 'collapsed' : ''}`
-                  }
+                  href={item.path}
+                  className={`sidebar-nav-item ${isActive ? 'active' : ''} ${collapsed ? 'collapsed' : ''}`}
                   onClick={() => setMobileOpen(false)}
                   title={collapsed ? item.label : undefined}
                 >
                   <IconComponent size={18} className="sidebar-nav-icon" />
                   {!collapsed && <span className="sidebar-nav-label">{item.label}</span>}
-                </NavLink>
+                </Link>
               );
             })}
           </div>
@@ -142,7 +144,7 @@ export default function ControlPanelLayout() {
               value={role}
               onChange={e => {
                 switchRole(e.target.value);
-                if (e.target.value === 'citizen') navigate('/');
+                if (e.target.value === 'citizen') navigate.push('/');
               }}
               title="Switch role (demo)"
             >
@@ -158,7 +160,7 @@ export default function ControlPanelLayout() {
         </header>
 
         <main id="cp-main" className="cp-page-content">
-          <Outlet />
+          {children}
         </main>
       </div>
     </div>

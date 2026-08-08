@@ -1,8 +1,9 @@
+'use client';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { ThumbsUp, MessageCircle, Share2, MapPin, Video, Play, Volume2, VolumeX, AlertTriangle, Send, X } from 'lucide-react';
-import { CATEGORIES } from '../data/mockData';
-import { getUserById, voteIssue, addComment } from '../data/store';
+import { CATEGORIES } from '@/data/mockData';
+import { getUserById, voteIssue, addComment } from '@/data/store';
 
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();

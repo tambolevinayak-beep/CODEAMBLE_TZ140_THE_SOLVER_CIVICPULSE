@@ -1,5 +1,6 @@
+'use client';
 import { Check, AlertTriangle, Clock, ArrowRight } from 'lucide-react';
-import { getUserById } from '../data/store';
+import { getUserById } from '@/data/store';
 
 function formatTime(dateStr) {
   const d = new Date(dateStr);

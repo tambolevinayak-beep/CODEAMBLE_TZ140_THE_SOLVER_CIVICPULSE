@@ -1,11 +1,14 @@
+'use client';
 import { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
+
 import {
   User, AlertCircle, PlusCircle, Map as MapIcon, Trophy,
   MessageCircle, FileText, ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
-  Activity, Video, BarChart3, Settings
+  Activity, Video, BarChart3, Settings, Sparkles
 } from 'lucide-react';
-import { useAuth } from '../lib/AuthContext';
+import { useAuth } from '@/lib/AuthContext';
 
 /**
  * Navigation items in the USER-REQUESTED order:
@@ -16,8 +19,10 @@ import { useAuth } from '../lib/AuthContext';
  * 5. Leaderboard
  */
 const CITIZEN_NAV = [
+  { to: '/intro', label: 'Intro Page', icon: Sparkles },
   { to: '/citizen/profile', label: 'Profile', icon: User },
-  { to: '/citizen', label: 'Issues', icon: AlertCircle, end: true },
+  { to: '/citizen', label: 'Dashboard', icon: BarChart3, end: true },
+  { to: '/citizen/feed', label: 'Feed', icon: AlertCircle },
   { to: '/citizen/report', label: 'Add Issue', icon: PlusCircle },
   {
     label: 'Explore',
@@ -48,7 +53,7 @@ const CITIZEN_NAV_BOTTOM = [
  */
 export default function CitizenSidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
   const { user } = useAuth();
-  const location = useLocation();
+  const pathname = usePathname();
   const [openGroups, setOpenGroups] = useState({ Explore: true });
 
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Citizen';
@@ -59,7 +64,7 @@ export default function CitizenSidebar({ collapsed, onToggle, mobileOpen, onMobi
   }
 
   function isGroupActive(group) {
-    return group.children.some(child => location.pathname === child.to || location.pathname.startsWith(child.to + '/'));
+    return group.children.some(child => pathname === child.to || pathname.startsWith(child.to + '/'));
   }
 
   function renderNavItem(link) {
@@ -93,9 +98,9 @@ export default function CitizenSidebar({ collapsed, onToggle, mobileOpen, onMobi
           </button>
           <div className={`sidebar-nav-children ${groupOpen ? 'open' : ''}`}>
             {link.children.map(child => (
-              <NavLink
+              <Link
                 key={child.to}
-                to={child.to}
+                href={child.to}
                 className={({ isActive }) =>
                   `sidebar-nav-item sidebar-nav-child ${isActive ? 'active' : ''} ${collapsed ? 'collapsed' : ''}`
                 }
@@ -104,7 +109,7 @@ export default function CitizenSidebar({ collapsed, onToggle, mobileOpen, onMobi
               >
                 <child.icon size={16} className="sidebar-nav-icon" />
                 {!collapsed && <span className="sidebar-nav-label">{child.label}</span>}
-              </NavLink>
+              </Link>
             ))}
           </div>
         </div>
@@ -112,9 +117,9 @@ export default function CitizenSidebar({ collapsed, onToggle, mobileOpen, onMobi
     }
 
     return (
-      <NavLink
+      <Link
         key={link.to}
-        to={link.to}
+        href={link.to}
         end={link.end}
         className={({ isActive }) =>
           `sidebar-nav-item ${isActive ? 'active' : ''} ${collapsed ? 'collapsed' : ''}`
@@ -124,7 +129,7 @@ export default function CitizenSidebar({ collapsed, onToggle, mobileOpen, onMobi
       >
         <link.icon size={18} className="sidebar-nav-icon" />
         {!collapsed && <span className="sidebar-nav-label">{link.label}</span>}
-      </NavLink>
+      </Link>
     );
   }
 
