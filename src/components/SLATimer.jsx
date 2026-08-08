@@ -48,9 +48,9 @@ export default function SLATimer({ deadline, size = 80 }) {
 
   // Color based on progress
   let color;
-  if (isBreached) color = '#ef4444';
-  else if (progress > 0.75) color = '#f59e0b';
-  else color = '#10b981';
+  if (isBreached) color = '#dc2626';
+  else if (progress > 0.75) color = '#ff9933';
+  else color = '#138808';
 
   // SVG circle math
   const radius = (size - 8) / 2;

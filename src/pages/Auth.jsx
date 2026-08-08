@@ -7,9 +7,9 @@ import { detectRoleFromEmail, getRoleLabel, getRoleIcon } from '../lib/supabase'
 import PageTransition from '../components/PageTransition';
 
 const ROLES = [
-  { id: 'citizen', label: 'Citizen', icon: '👤', desc: 'Report and track issues in your community', color: 'var(--primary)' },
-  { id: 'moderator', label: 'Locality Moderator', icon: '🛡️', desc: 'Verify and manage issues in assigned locality', color: 'var(--warning)' },
-  { id: 'super_admin', label: 'Super Admin', icon: '⚙️', desc: 'Platform-wide administration and configuration', color: 'var(--accent)' },
+  { id: 'citizen', label: 'Citizen', icon: '👤', desc: 'Report and track issues in your community', color: 'var(--color-primary-700)' },
+  { id: 'moderator', label: 'Locality Moderator', icon: '🛡️', desc: 'Verify and manage issues in assigned locality', color: 'var(--color-gold-600)' },
+  { id: 'super_admin', label: 'Super Admin', icon: '🏛️', desc: 'Platform-wide administration and configuration', color: 'var(--color-accent-600)' },
 ];
 
 export default function Auth() {

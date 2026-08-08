@@ -1,9 +1,16 @@
 import { useEffect, useState, useRef } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
+import { apply3DTilt } from '../utils/animeEngine';
 
 export default function StatsCard({ value, label, icon: Icon, trend, trendLabel, variant = 'primary' }) {
   const [displayValue, setDisplayValue] = useState(0);
   const cardRef = useRef(null);
+
+  useEffect(() => {
+    if (cardRef.current) {
+      apply3DTilt(cardRef.current);
+    }
+  }, []);
 
   // Count-up animation
   useEffect(() => {
@@ -17,7 +24,6 @@ export default function StatsCard({ value, label, icon: Icon, trend, trendLabel,
     function animate(currentTime) {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      // Ease-out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       const current = Math.round(eased * numVal);
       setDisplayValue(current);
@@ -34,7 +40,7 @@ export default function StatsCard({ value, label, icon: Icon, trend, trendLabel,
   };
 
   return (
-    <div className={`stats-card stat-${variant}`}>
+    <div ref={cardRef} className={`stats-card card-3d stat-${variant}`}>
       {Icon && (
         <div className={`stats-card-icon icon-${variant}`}>
           <Icon size={20} />

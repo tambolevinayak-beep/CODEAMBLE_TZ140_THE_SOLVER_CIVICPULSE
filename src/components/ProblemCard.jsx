@@ -1,12 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, MessageCircle, Share2, ChevronLeft, ChevronRight, Clock, Flag } from 'lucide-react';
+import { MapPin, MessageCircle, Share2, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import SupportButton from './SupportButton';
 import StatusStepper from './StatusStepper';
 import { CATEGORIES, STATUSES } from '../data/mockData';
 import { getUserById, hasUserSupported, toggleSupport } from '../data/store';
 import { useAuth } from '../lib/AuthContext';
-
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
@@ -19,15 +18,17 @@ function timeAgo(dateStr) {
   return `${Math.floor(days / 7)}w ago`;
 }
 
-/**
- * ProblemCard — Instagram-style card for the feed.
- * Image-forward, locality tag, status badge, support button, comments.
- */
 export default function ProblemCard({ problem, onUpdate }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [currentMediaIdx, setCurrentMediaIdx] = useState(0);
-  const [supportAnimating, setSupportAnimating] = useState(false);
+  const cardRef = useRef(null);
+
+  useEffect(() => {
+    if (cardRef.current) {
+      apply3DTilt(cardRef.current);
+    }
+  }, []);
 
   const reporter = getUserById(problem.user_id);
   const category = CATEGORIES.find(c => c.id === problem.category);
@@ -38,9 +39,7 @@ export default function ProblemCard({ problem, onUpdate }) {
   const mediaUrls = problem.media_urls || [];
 
   function handleSupport() {
-    setSupportAnimating(true);
     toggleSupport(problem.id);
-    setTimeout(() => setSupportAnimating(false), 300);
     onUpdate?.();
   }
 
@@ -51,7 +50,6 @@ export default function ProblemCard({ problem, onUpdate }) {
         title: problem.title,
         text: problem.description,
         url: `${window.location.origin}/problem/${problem.id}`,
-      }).catch(() => {});
     } else {
       navigator.clipboard.writeText(`${window.location.origin}/problem/${problem.id}`);
     }
@@ -62,7 +60,7 @@ export default function ProblemCard({ problem, onUpdate }) {
     : reporter?.avatar || '?';
 
   return (
-    <article className="problem-card animate-fade-in">
+    <article ref={cardRef} className="problem-card card-3d animate-fade-in">
       {/* ── Header ── */}
       <div className="problem-card-header">
         <div className="problem-card-avatar">{initials}</div>

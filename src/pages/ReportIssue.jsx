@@ -16,8 +16,8 @@ export default function ReportIssue() {
     category: '',
     severity: '',
     address: '',
-    lat: 12.9716,
-    lng: 77.5946,
+    lat: 18.5204,
+    lng: 73.8567,
     photos: [],
   });
   const [aiResult, setAiResult] = useState(null);

@@ -8,14 +8,14 @@ import { useAuth } from '../lib/AuthContext';
 import { supabase } from '../lib/supabase';
 
 const INTEREST_CATEGORIES = [
-  { id: 'pothole', label: 'Roads & Potholes', icon: '🛣️' },
-  { id: 'water', label: 'Water & Drainage', icon: '💧' },
-  { id: 'garbage', label: 'Waste & Sanitation', icon: '🗑️' },
-  { id: 'streetlight', label: 'Streetlighting', icon: '💡' },
-  { id: 'traffic', label: 'Traffic', icon: '🚦' },
-  { id: 'parks', label: 'Parks & Green', icon: '🌳' },
-  { id: 'noise', label: 'Noise Pollution', icon: '🔊' },
-  { id: 'drainage', label: 'Drainage Issues', icon: '🌊' },
+  { id: 'pothole', label: 'Roads & Potholes', icon: '🛣️', color: '#002b49' },
+  { id: 'water', label: 'Water & Drainage', icon: '💧', color: '#004b87' },
+  { id: 'garbage', label: 'Waste & Sanitation', icon: '🗑️', color: '#ff9933' },
+  { id: 'streetlight', label: 'Streetlighting', icon: '💡', color: '#d4af37' },
+  { id: 'traffic', label: 'Traffic & Transit', icon: '🚦', color: '#dc2626' },
+  { id: 'parks', label: 'Parks & Green', icon: '🌳', color: '#138808' },
+  { id: 'noise', label: 'Noise Pollution', icon: '🔊', color: '#ff9933' },
+  { id: 'drainage', label: 'Drainage Issues', icon: '🌊', color: '#002b49' },
 ];
 
 const COMMUTE_MODES = [

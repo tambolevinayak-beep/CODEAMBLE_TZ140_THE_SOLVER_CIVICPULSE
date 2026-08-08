@@ -96,8 +96,8 @@ export default function CPCaseQueue() {
         </div>
       </div>
 
-      {/* Filters bar */}
-      <div className="cp-filters-bar">
+      {/* Filters */}
+      <div className="cp-filters-row card-3d glass-gov" style={{ padding: '16px', borderRadius: 'var(--radius-xl)', marginBottom: '16px' }}>
         <div className="cp-search-wrap">
           <Search size={14} />
           <input

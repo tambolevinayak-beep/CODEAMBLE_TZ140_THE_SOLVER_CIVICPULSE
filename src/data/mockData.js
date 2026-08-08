@@ -6,25 +6,25 @@ import { LOCALITIES } from './localities';
 
 // ── Categories ──
 export const CATEGORIES = [
-  { id: 'pothole', label: 'Pothole', icon: '🕳️', color: '#ef4444' },
-  { id: 'garbage', label: 'Garbage', icon: '🗑️', color: '#f97316' },
-  { id: 'water_leakage', label: 'Water Leakage', icon: '💧', color: '#3b82f6' },
-  { id: 'electricity', label: 'Electricity', icon: '⚡', color: '#eab308' },
-  { id: 'streetlight', label: 'Streetlight', icon: '💡', color: '#f59e0b' },
+  { id: 'pothole', label: 'Pothole', icon: '🕳️', color: '#dc2626' },
+  { id: 'garbage', label: 'Garbage', icon: '🗑️', color: '#ff9933' },
+  { id: 'water_leakage', label: 'Water Leakage', icon: '💧', color: '#004b87' },
+  { id: 'electricity', label: 'Electricity', icon: '⚡', color: '#d4af37' },
+  { id: 'streetlight', label: 'Streetlight', icon: '💡', color: '#d4af37' },
   { id: 'safety', label: 'Safety', icon: '🚨', color: '#dc2626' },
-  { id: 'drainage', label: 'Drainage', icon: '🌊', color: '#06b6d4' },
-  { id: 'stray_animals', label: 'Stray Animals', icon: '🐕', color: '#8b5cf6' },
-  { id: 'other', label: 'Other', icon: '📋', color: '#6b7280' },
+  { id: 'drainage', label: 'Drainage', icon: '🌊', color: '#002b49' },
+  { id: 'stray_animals', label: 'Stray Animals', icon: '🐕', color: '#ff9933' },
+  { id: 'other', label: 'Other', icon: '📋', color: '#475569' },
 ];
 
 // ── Status definitions ──
 export const STATUSES = [
-  { id: 'reported', label: 'Reported', color: '#ef4444' },
-  { id: 'verified', label: 'Verified', color: '#f59e0b' },
-  { id: 'escalated', label: 'Escalated', color: '#3b82f6' },
-  { id: 'in_progress', label: 'In Progress', color: '#6366f1' },
-  { id: 'resolved', label: 'Resolved', color: '#10b981' },
-  { id: 'rejected', label: 'Rejected', color: '#6b7280' },
+  { id: 'reported', label: 'Reported', color: '#ff9933' },
+  { id: 'verified', label: 'Verified', color: '#d4af37' },
+  { id: 'escalated', label: 'Escalated', color: '#004b87' },
+  { id: 'in_progress', label: 'In Progress', color: '#002b49' },
+  { id: 'resolved', label: 'Resolved', color: '#138808' },
+  { id: 'rejected', label: 'Rejected', color: '#64748b' },
 ];
 
 export const STATUS_ORDER = ['reported', 'verified', 'escalated', 'in_progress', 'resolved'];

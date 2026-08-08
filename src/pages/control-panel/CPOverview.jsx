@@ -45,18 +45,18 @@ export default function CPOverview() {
 
       {/* Charts */}
       <div className="cp-charts-row">
-        <div className="cp-chart-card">
+        <div className="cp-chart-card card-3d">
           <div className="cp-chart-title">Cases by Category</div>
           <DonutChart data={stats.categoryBreakdown} height={280} />
         </div>
-        <div className="cp-chart-card">
+        <div className="cp-chart-card card-3d">
           <div className="cp-chart-title">Department SLA Breach Rate</div>
-          <BarChartComponent data={deptSLAData} dataKey="Breach Rate" height={280} color="#ef4444" />
+          <BarChartComponent data={deptSLAData} dataKey="Breach Rate" height={280} color="#ff9933" />
         </div>
       </div>
 
       {/* Trends */}
-      <div className="cp-chart-card" style={{ marginTop: '20px' }}>
+      <div className="cp-chart-card card-3d" style={{ marginTop: '20px' }}>
         <div className="cp-chart-title">Issue Trends (6 Months)</div>
         <LineChartComponent
           data={MONTHLY_TRENDS}

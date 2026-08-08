@@ -38,13 +38,14 @@ export default function Leaderboard() {
             </h2>
             <div className="grid-3" style={{ gap: 'var(--space-md)' }}>
               {WEEKLY_CHALLENGES.map(challenge => (
-                <div key={challenge.id} style={{ 
+                <div key={challenge.id} className="card-3d" style={{ 
                   background: 'var(--bg-primary)', 
                   padding: 'var(--space-md)', 
-                  borderRadius: 'var(--radius-md)', 
+                  borderRadius: 'var(--radius-lg)', 
                   border: '1px solid var(--border)',
                   position: 'relative',
-                  overflow: 'hidden'
+                  overflow: 'hidden',
+                  boxShadow: 'var(--shadow-3d-soft)'
                 }}>
                   {challenge.completed && (
                     <div style={{ 

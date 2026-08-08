@@ -1,10 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { Heart } from 'lucide-react';
+import { triggerParticleBurst } from '../utils/animeEngine';
 
-/**
- * SupportButton — "I face this too" tap button with satisfying micro-interaction.
- * Scale + color fill + ripple on tap.
- */
 export default function SupportButton({
   count = 0,
   supported = false,
@@ -14,7 +11,6 @@ export default function SupportButton({
   size = 'default',
 }) {
   const [animating, setAnimating] = useState(false);
-  const [particles, setParticles] = useState([]);
   const btnRef = useRef(null);
 
   const handleClick = useCallback((e) => {
@@ -24,14 +20,8 @@ export default function SupportButton({
     setAnimating(true);
     setTimeout(() => setAnimating(false), 400);
 
-    // Burst particles on support
-    if (!supported) {
-      const newParticles = Array.from({ length: 6 }, (_, i) => ({
-        id: Date.now() + i,
-        angle: (i * 60) + Math.random() * 30,
-      }));
-      setParticles(newParticles);
-      setTimeout(() => setParticles([]), 600);
+    if (!supported && btnRef.current) {
+      triggerParticleBurst(btnRef.current, 14);
     }
 
     onToggle?.();

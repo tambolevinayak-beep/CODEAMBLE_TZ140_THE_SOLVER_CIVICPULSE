@@ -1,7 +1,9 @@
+import { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, ThumbsUp, MessageCircle, Clock } from 'lucide-react';
 import { CATEGORIES } from '../data/mockData';
 import { getUserById } from '../data/store';
+import { apply3DTilt } from '../utils/animeEngine';
 
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -42,10 +44,17 @@ function priorityClass(severity) {
 }
 
 export default function IssueCard({ issue }) {
+  const cardRef = useRef(null);
   const category = CATEGORIES.find(c => c.id === issue.category);
 
+  useEffect(() => {
+    if (cardRef.current) {
+      apply3DTilt(cardRef.current);
+    }
+  }, []);
+
   return (
-    <Link to={`/issue/${issue.id}`} className="issue-card">
+    <Link ref={cardRef} to={`/issue/${issue.id}`} className="issue-card card-3d">
       <div className={`priority-bar ${priorityClass(issue.severity)}`} style={{ alignSelf: 'stretch' }} />
       <div className="issue-card-body">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
