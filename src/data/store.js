@@ -1,6 +1,6 @@
 // ============================================
-// CivicPulse — Data Store
-// localStorage-first with optional Supabase sync
+// CivicPulse — Ultra-Fast In-Memory Indexed Data Store
+// O(1) Lookup Complexity with localStorage Persistence
 // ============================================
 
 import {
@@ -13,6 +13,45 @@ import { supabase } from '../lib/supabase';
 
 const STORE_KEY = 'civicpulse_store_v1';
 const INITIALIZED_KEY = 'civicpulse_initialized_v1';
+
+// ── In-Memory Cache & Index Maps (O(1) Access) ──
+let cachedState = null;
+const userIndexMap = new Map();
+const problemIndexMap = new Map();
+const localityIndexMap = new Map();
+const supportSetMap = new Map();
+
+function rebuildIndexes(state) {
+  userIndexMap.clear();
+  problemIndexMap.clear();
+  localityIndexMap.clear();
+  supportSetMap.clear();
+
+  if (state.users) {
+    for (let i = 0; i < state.users.length; i++) {
+      userIndexMap.set(state.users[i].id, state.users[i]);
+    }
+  }
+  if (state.problems) {
+    for (let i = 0; i < state.problems.length; i++) {
+      problemIndexMap.set(state.problems[i].id, state.problems[i]);
+    }
+  }
+  if (state.localities) {
+    for (let i = 0; i < state.localities.length; i++) {
+      localityIndexMap.set(state.localities[i].id, state.localities[i]);
+    }
+  }
+  if (state.support) {
+    for (let i = 0; i < state.support.length; i++) {
+      const item = state.support[i];
+      if (!supportSetMap.has(item.problem_id)) {
+        supportSetMap.set(item.problem_id, new Set());
+      }
+      supportSetMap.get(item.problem_id).add(item.user_id);
+    }
+  }
+}
 
 // ── Event Bus ──
 class EventBus {
@@ -36,18 +75,30 @@ class EventBus {
 
 export const events = new EventBus();
 
-// ── Store I/O ──
+// ── Fast Store I/O ──
 function loadStore() {
+  if (cachedState) return cachedState;
   try {
     const raw = localStorage.getItem(STORE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      cachedState = JSON.parse(raw);
+      rebuildIndexes(cachedState);
+      return cachedState;
+    }
   } catch (e) { console.error('Store load error:', e); }
   return null;
 }
 
+let saveTimeout = null;
 function saveStore(state) {
-  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
-  catch (e) { console.error('Store save error:', e); }
+  cachedState = state;
+  rebuildIndexes(state);
+  // Debounce disk I/O for zero latency
+  if (saveTimeout) clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+    catch (e) { console.error('Store save error:', e); }
+  }, 50);
 }
 
 // ── Initialize ──
@@ -78,7 +129,10 @@ export function initializeStore() {
   return state;
 }
 
-function getState() { return loadStore() || initializeStore(); }
+function getState() {
+  if (cachedState) return cachedState;
+  return loadStore() || initializeStore();
+}
 
 function updateState(updater) {
   const state = getState();
@@ -87,14 +141,20 @@ function updateState(updater) {
   return state;
 }
 
-// ── User Queries ──
+// ── Fast O(1) User Queries ──
 export function getCurrentUserId() { return getState().currentUserId; }
-export function getUserById(id) { return getState().users.find(u => u.id === id); }
+export function getUserById(id) {
+  getState();
+  return userIndexMap.get(id) || null;
+}
 export function getAllUsers() { return getState().users; }
 
-// ── Problem Queries ──
+// ── Fast O(1) / O(N) Problem Queries ──
 export function getAllProblems() { return getState().problems.filter(p => !p.is_hidden); }
-export function getProblemById(id) { return getState().problems.find(p => p.id === id); }
+export function getProblemById(id) {
+  getState();
+  return problemIndexMap.get(id) || null;
+}
 export function getProblemsByLocality(localityId) {
   return getState().problems.filter(p => p.locality_id === localityId && !p.is_hidden);
 }
@@ -106,8 +166,7 @@ export function getProblemsByCategory(category) {
 }
 
 /**
- * Locality-first feed ranking algorithm.
- * Posts from user's own ward first → expanding radius → weighted by recency + support velocity.
+ * Locality-first feed ranking algorithm (Optimized score caching).
  */
 export function getFeedProblems(userLocalityId, userLat, userLng) {
   const problems = getAllProblems();
@@ -115,31 +174,21 @@ export function getFeedProblems(userLocalityId, userLat, userLng) {
   return problems
     .map(p => {
       let score = 0;
+      if (p.locality_id === userLocalityId) score += 1000;
 
-      // Locality match (highest priority)
-      if (p.locality_id === userLocalityId) {
-        score += 1000;
-      }
-
-      // Distance-based scoring (closer = higher)
       if (userLat && userLng) {
         const dist = Math.sqrt(
           Math.pow(p.location_lat - userLat, 2) +
           Math.pow(p.location_lng - userLng, 2)
         );
-        // Invert distance: closer means higher score. Max ~500 points for <1km
         score += Math.max(0, 500 - (dist * 5000));
       }
 
-      // Recency boost (exponential decay over 7 days)
       const ageHours = (Date.now() - new Date(p.created_at).getTime()) / 3600000;
-      score += Math.max(0, 200 * Math.exp(-ageHours / 168)); // 168h = 7 days
+      score += Math.max(0, 200 * Math.exp(-ageHours / 168));
 
-      // Support velocity (supports per hour, capped)
       const supportVelocity = ageHours > 0 ? p.support_count / ageHours : p.support_count;
       score += Math.min(supportVelocity * 50, 150);
-
-      // Raw support count
       score += Math.min(p.support_count * 2, 100);
 
       return { ...p, _feedScore: score };
@@ -147,9 +196,6 @@ export function getFeedProblems(userLocalityId, userLat, userLng) {
     .sort((a, b) => b._feedScore - a._feedScore);
 }
 
-/**
- * Find potential duplicates (same category within ~100m radius)
- */
 export function getDuplicateCandidates(category, lat, lng, radiusKm = 0.1) {
   const problems = getAllProblems();
   return problems.filter(p => {
@@ -158,7 +204,6 @@ export function getDuplicateCandidates(category, lat, lng, radiusKm = 0.1) {
     const dist = Math.sqrt(
       Math.pow(p.location_lat - lat, 2) + Math.pow(p.location_lng - lng, 2)
     );
-    // Rough: 0.001 degree ≈ 111m
     return dist < (radiusKm / 111);
   });
 }
@@ -168,7 +213,6 @@ export function createProblem(data) {
   const state = getState();
   const userId = state.currentUserId;
 
-  // Rate limiting
   const today = new Date().toISOString().split('T')[0];
   const dailyCounts = state.dailyPostCounts || {};
   const userCount = dailyCounts[`${userId}_${today}`] || 0;
@@ -191,7 +235,7 @@ export function createProblem(data) {
     location_address: data.location_address || '',
     locality_id: data.locality_id || locality?.id || 'kothrud',
     status: 'reported',
-    support_count: 1, // auto-support own post
+    support_count: 1,
     comment_count: 0,
     duplicate_of_id: null,
     flag_count: 0,
@@ -202,12 +246,9 @@ export function createProblem(data) {
 
   updateState(s => {
     s.problems.unshift(newProblem);
-    // Auto-support own post
     s.support.push({ problem_id: id, user_id: userId });
-    // Track daily count
     if (!s.dailyPostCounts) s.dailyPostCounts = {};
     s.dailyPostCounts[`${userId}_${today}`] = userCount + 1;
-    // Status history
     s.statusHistory.push({
       problem_id: id,
       old_status: null,
@@ -222,33 +263,33 @@ export function createProblem(data) {
   return { problem: newProblem, error: null };
 }
 
-// ── Support Logic ──
+// ── Fast O(1) Support Logic ──
 export function getSupporters(problemId) {
   return getState().support.filter(s => s.problem_id === problemId);
 }
 
 export function hasUserSupported(problemId, userId) {
-  return getState().support.some(s => s.problem_id === problemId && s.user_id === userId);
+  getState();
+  const set = supportSetMap.get(problemId);
+  return set ? set.has(userId) : false;
 }
 
 export function toggleSupport(problemId) {
   const state = getState();
   const userId = state.currentUserId;
-  const problem = state.problems.find(p => p.id === problemId);
+  const problem = problemIndexMap.get(problemId);
   if (!problem) return { supported: false, count: 0 };
 
-  // Can't support own post
   if (problem.user_id === userId) return { supported: false, count: problem.support_count, ownPost: true };
 
-  const existing = state.support.find(s => s.problem_id === problemId && s.user_id === userId);
+  const isSupported = hasUserSupported(problemId, userId);
 
-  if (existing) {
-    // Remove support
+  if (isSupported) {
     updateState(s => {
       s.support = s.support.filter(
         sv => !(sv.problem_id === problemId && sv.user_id === userId)
       );
-      const p = s.problems.find(pp => pp.id === problemId);
+      const p = problemIndexMap.get(problemId);
       if (p) {
         p.support_count = Math.max(0, p.support_count - 1);
         p.updated_at = new Date().toISOString();
@@ -257,10 +298,9 @@ export function toggleSupport(problemId) {
     events.emit('problemUpdated', problemId);
     return { supported: false, count: problem.support_count - 1 };
   } else {
-    // Add support
     updateState(s => {
       s.support.push({ problem_id: problemId, user_id: userId });
-      const p = s.problems.find(pp => pp.id === problemId);
+      const p = problemIndexMap.get(problemId);
       if (p) {
         p.support_count += 1;
         p.updated_at = new Date().toISOString();
@@ -269,10 +309,8 @@ export function toggleSupport(problemId) {
 
     events.emit('problemUpdated', problemId);
 
-    // Check auto-escalation threshold
     const updatedProblem = getProblemById(problemId);
     if (updatedProblem && updatedProblem.support_count >= SUPPORT_THRESHOLD && updatedProblem.status === 'reported') {
-      // Add notification for auto-escalation candidate
       addNotification(
         problem.user_id,
         'support_milestone',
@@ -288,14 +326,14 @@ export function toggleSupport(problemId) {
 // ── Status Updates ──
 export function updateProblemStatus(problemId, newStatus, note = '', changedBy = null) {
   const state = getState();
-  const problem = state.problems.find(p => p.id === problemId);
+  const problem = problemIndexMap.get(problemId);
   if (!problem) return;
 
   const oldStatus = problem.status;
   const actor = changedBy || state.currentUserId;
 
   updateState(s => {
-    const p = s.problems.find(pp => pp.id === problemId);
+    const p = problemIndexMap.get(problemId);
     if (p) {
       p.status = newStatus;
       p.updated_at = new Date().toISOString();
@@ -310,7 +348,6 @@ export function updateProblemStatus(problemId, newStatus, note = '', changedBy =
     });
   });
 
-  // Notify all supporters of status change
   const supporters = getSupporters(problemId);
   supporters.forEach(s => {
     addNotification(
@@ -321,7 +358,6 @@ export function updateProblemStatus(problemId, newStatus, note = '', changedBy =
     );
   });
 
-  // Also notify the problem creator
   if (!supporters.some(s => s.user_id === problem.user_id)) {
     addNotification(
       problem.user_id,
@@ -334,9 +370,9 @@ export function updateProblemStatus(problemId, newStatus, note = '', changedBy =
   events.emit('problemUpdated', problemId);
 }
 
-// ── Escalation ──
+// ── Escalation Payload ──
 export function generateEscalationPayload(problem) {
-  const locality = LOCALITIES.find(l => l.id === problem.locality_id);
+  const locality = getLocalityById(problem.locality_id);
   const category = CATEGORIES.find(c => c.id === problem.category);
   const statusHistory = getStatusHistory(problem.id);
 
@@ -380,7 +416,6 @@ export function escalateProblem(problemId, departmentId) {
   const payload = generateEscalationPayload(problem);
 
   updateState(s => {
-    // Create escalation record
     if (!s.escalations) s.escalations = [];
     s.escalations.push({
       id: `esc-${Date.now()}`,
@@ -394,9 +429,7 @@ export function escalateProblem(problemId, departmentId) {
     });
   });
 
-  // Update problem status to escalated
   updateProblemStatus(problemId, 'escalated', `Escalated to ${dept.name}`);
-
   return { success: true, payload };
 }
 
@@ -418,14 +451,13 @@ export function addComment(problemId, text, mediaUrl = null) {
 
   updateState(s => {
     s.comments.push(comment);
-    const p = s.problems.find(pp => pp.id === problemId);
+    const p = problemIndexMap.get(problemId);
     if (p) {
       p.comment_count = (p.comment_count || 0) + 1;
       p.updated_at = new Date().toISOString();
     }
   });
 
-  // Notify problem creator about new comment
   const problem = getProblemById(problemId);
   if (problem && problem.user_id !== state.currentUserId) {
     const commenter = getUserById(state.currentUserId);
@@ -451,7 +483,7 @@ export function getStatusHistory(problemId) {
 // ── Flagging ──
 export function flagProblem(problemId) {
   updateState(s => {
-    const p = s.problems.find(pp => pp.id === problemId);
+    const p = problemIndexMap.get(problemId);
     if (p) {
       p.flag_count = (p.flag_count || 0) + 1;
       if (p.flag_count >= MAX_FLAGS_TO_HIDE) {
@@ -465,14 +497,13 @@ export function flagProblem(problemId) {
 // ── Merge Duplicate ──
 export function mergeDuplicate(duplicateId, canonicalId) {
   updateState(s => {
-    const dup = s.problems.find(p => p.id === duplicateId);
+    const dup = problemIndexMap.get(duplicateId);
     if (dup) {
       dup.duplicate_of_id = canonicalId;
       dup.status = 'rejected';
       dup.updated_at = new Date().toISOString();
     }
-    // Transfer support from duplicate to canonical
-    const canonical = s.problems.find(p => p.id === canonicalId);
+    const canonical = problemIndexMap.get(canonicalId);
     const dupSupport = s.support.filter(sv => sv.problem_id === duplicateId);
     dupSupport.forEach(ds => {
       if (!s.support.some(sv => sv.problem_id === canonicalId && sv.user_id === ds.user_id)) {
@@ -528,11 +559,13 @@ export function markAllNotificationsRead(userId) {
   events.emit('notificationsUpdated');
 }
 
-// ── Locality Queries ──
+// ── O(1) Locality & Department Queries ──
 export function getAllLocalities() { return getState().localities; }
-export function getLocalityById(id) { return getState().localities.find(l => l.id === id); }
+export function getLocalityById(id) {
+  getState();
+  return localityIndexMap.get(id) || null;
+}
 
-// ── Department Queries ──
 export function getAllDepartments() { return getState().departments; }
 export function getDepartmentById(id) { return getState().departments.find(d => d.id === id); }
 export function getDepartmentForCategory(category) {
@@ -546,12 +579,10 @@ export function getDashboardStats(localityFilter = null) {
     problems = problems.filter(p => p.locality_id === localityFilter);
   }
 
-  const now = new Date();
   const open = problems.filter(p => ['reported', 'verified', 'escalated', 'in_progress'].includes(p.status));
   const resolved = problems.filter(p => p.status === 'resolved');
   const escalated = problems.filter(p => p.status === 'escalated');
 
-  // Calculate average resolution time from status history
   let avgResolutionHours = 0;
   if (resolved.length > 0) {
     const times = resolved.map(p => {
@@ -562,7 +593,6 @@ export function getDashboardStats(localityFilter = null) {
     avgResolutionHours = times.length > 0 ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : 0;
   }
 
-  // Category breakdown
   const categoryBreakdown = {};
   problems.forEach(p => {
     const cat = CATEGORIES.find(c => c.id === p.category);
@@ -593,13 +623,14 @@ export function setCurrentUser(userId) {
 
 // ── Reset ──
 export function resetStore() {
+  cachedState = null;
   localStorage.removeItem(STORE_KEY);
   localStorage.removeItem(INITIALIZED_KEY);
   initializeStore();
   events.emit('storeReset');
 }
 
-// ── Backwards Compatibility & Aliases ──
+// ── Aliases ──
 export const getAllIssues = getAllProblems;
 export const getIssueById = getProblemById;
 export const createIssue = createProblem;
@@ -609,4 +640,3 @@ export const verifyResolution = (problemId) => updateProblemStatus(problemId, 'v
 export const verifyIssueBySubAdmin = (problemId) => updateProblemStatus(problemId, 'verified', 'Verified by Sub-Admin');
 export const updateIssueStatus = updateProblemStatus;
 export const getIssuesByUserId = (userId) => getAllProblems().filter(p => p.user_id === userId);
-
