@@ -1,200 +1,306 @@
 /* ============================================
-   CivicPulse v4 — Premium Design System
-   "Civic Authority" Palette
-   Deep Midnight (60%) / Teal-Emerald (30%) / Vivid Coral (10%)
+   CivicPulse — Premium Design System & UI Engine
+   Inspired by FarmDirect Design Architecture
+   Color Palette: Vibrant Royal Blue (Primary) / Emerald Resolution Green (Secondary) / Electric Alert Red-Orange (Accent)
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Open+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&display=swap');
+/* --- Google Fonts (Outfit & Inter from FarmDirect + Poppins & JetBrains Mono) --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
-/* --- Design Tokens --- */
+/* ============================================
+   1. DESIGN TOKENS (CSS Custom Properties)
+   ============================================ */
 :root {
-  /* ═══ Brand Colors — 60/30/10 Rule ═══ */
+  /* ═══ Color Palette: Blue / Green / Red-Orange ═══ */
 
-  /* Deep Midnight Navy — 60% (Dominant: sidebar, headers, page structures) */
-  --brand-midnight:       #0B1929;
-  --brand-midnight-dark:  #060F1A;
-  --brand-midnight-light: #132D4A;
-  --brand-midnight-50:    #E8EDF4;
-  --brand-midnight-100:   #C4D1E1;
-  --brand-midnight-200:   #1E3550;
+  /* Primary: Royal & Ocean Blue (Civic Authority & Trust) */
+  --color-primary-50:  #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+  --color-primary-950: #172554;
 
-  /* Royal Emerald / Civic Teal — 30% (Secondary/Primary UI: CTAs, cards, badges, links) */
-  --brand-teal:           #0D9488;
-  --brand-teal-dark:      #0F766E;
-  --brand-teal-light:     #14B8A6;
-  --brand-teal-50:        #F0FDFA;
-  --brand-teal-100:       #CCFBF1;
-  --brand-teal-200:       #99F6E4;
-  --brand-teal-glow:      rgba(13, 148, 136, 0.2);
+  /* Secondary: Emerald Resolution Green (Verified Fixes & Environmental Health) */
+  --color-accent-50:  #ecfdf5;
+  --color-accent-100: #d1fae5;
+  --color-accent-200: #a7f3d0;
+  --color-accent-300: #6ee7b7;
+  --color-accent-400: #34d399;
+  --color-accent-500: #10b981;
+  --color-accent-600: #059669;
+  --color-accent-700: #047857;
+  --color-accent-800: #065f46;
+  --color-accent-900: #064e3b;
 
-  /* Vivid Saffron Gold — 10% (Accent: highlights, urgent alerts, special badges) */
-  --brand-saffron:        #F59E0B;
-  --brand-saffron-dark:   #D97706;
-  --brand-saffron-light:  #FBBF24;
-  --brand-saffron-50:     #FFFBEB;
-  --brand-saffron-glow:   rgba(245, 158, 11, 0.2);
+  /* Alert & Action: Electric Orange & Red (High Severity & Immediate Alerts) */
+  --color-alert-50:   #fef2f2;
+  --color-alert-100:  #fee2e2;
+  --color-alert-200:  #fecaca;
+  --color-alert-300:  #fca5a5;
+  --color-alert-400:  #f87171;
+  --color-alert-500:  #ef4444;
+  --color-alert-600:  #dc2626;
+  --color-alert-700:  #b91c1c;
+
+  --color-warning-50:  #fff7ed;
+  --color-warning-100: #ffedd5;
+  --color-warning-400: #fb923c;
+  --color-warning-500: #f97316;
+  --color-warning-600: #ea580c;
+
+  /* Neutrals: Charcoal / Slate */
+  --color-neutral-0:   #ffffff;
+  --color-neutral-50:  #f8fafc;
+  --color-neutral-100: #f1f5f9;
+  --color-neutral-200: #e2e8f0;
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-500: #64748b;
+  --color-neutral-600: #475569;
+  --color-neutral-700: #334155;
+  --color-neutral-800: #1e293b;
+  --color-neutral-900: #0f172a;
+  --color-neutral-950: #020617;
+
+  /* ═══ Brand Aliases ═══ */
+  --brand-midnight:       #0f172a;
+  --brand-midnight-dark:  #020617;
+  --brand-midnight-light: #1e293b;
+
+  --brand-blue:           var(--color-primary-600);
+  --brand-blue-dark:      var(--color-primary-700);
+  --brand-blue-light:     var(--color-primary-500);
+  --brand-blue-50:        var(--color-primary-50);
+  --brand-blue-glow:      rgba(37, 99, 235, 0.25);
+
+  --brand-green:          var(--color-accent-600);
+  --brand-green-dark:     var(--color-accent-700);
+  --brand-green-light:    var(--color-accent-500);
+  --brand-green-50:       var(--color-accent-50);
+  --brand-green-glow:     rgba(5, 150, 105, 0.25);
+
+  --brand-orange:         var(--color-warning-500);
+  --brand-red:            var(--color-alert-600);
+  --brand-red-light:      var(--color-alert-500);
+  --brand-red-50:         var(--color-alert-50);
+  --brand-red-glow:       rgba(220, 38, 38, 0.25);
+
+  /* Legacy Compatibility Aliases (Mapped to Blue / Green / Red-Orange) */
+  --brand-teal:           var(--brand-blue);
+  --brand-teal-dark:      var(--brand-blue-dark);
+  --brand-teal-light:     var(--brand-blue-light);
+  --brand-teal-50:        var(--brand-blue-50);
+  --brand-teal-100:       var(--color-primary-100);
+  --brand-teal-200:       var(--color-primary-200);
+  --brand-teal-glow:      var(--brand-blue-glow);
+
+  --brand-saffron:        var(--brand-orange);
+  --brand-saffron-dark:   var(--color-warning-600);
+  --brand-saffron-light:  var(--color-warning-400);
+  --brand-saffron-50:     var(--color-warning-50);
+  --brand-saffron-glow:   var(--accent-glow);
+
+  --brand-coral:          var(--brand-red);
+  --brand-coral-dark:     var(--color-alert-700);
+  --brand-coral-light:    var(--brand-red-light);
+  --brand-coral-50:       var(--brand-red-50);
+  --brand-coral-glow:     var(--brand-red-glow);
 
   /* ═══ Semantic Tokens ═══ */
+  --bg-primary:        #ffffff;
+  --bg-secondary:      #f8fafc;
+  --bg-tertiary:       #f1f5f9;
+  --bg-card:           #ffffff;
+  --bg-card-hover:     #f8fafc;
+  --bg-glass:          rgba(255, 255, 255, 0.85);
+  --bg-input:          #f1f5f9;
+  --bg-page:           #f8fafc;
+  --bg-sidebar:        var(--brand-midnight);
+  --bg-sidebar-hover:  var(--brand-midnight-light);
+  --bg-overlay:        rgba(15, 23, 42, 0.65);
 
-  /* Background */
-  --bg-primary:     #FFFFFF;
-  --bg-secondary:   #F8FAFB;
-  --bg-tertiary:    #F0F4F8;
-  --bg-card:        #FFFFFF;
-  --bg-card-hover:  #F8FAFB;
-  --bg-glass:       rgba(255, 255, 255, 0.85);
-  --bg-input:       #F0F4F8;
-  --bg-page:        #F0F4F8;
-  --bg-sidebar:     var(--brand-midnight);
-  --bg-sidebar-hover: var(--brand-midnight-light);
-  --bg-overlay:     rgba(11, 25, 41, 0.65);
+  /* Primary (Blue) */
+  --primary:           var(--brand-blue);
+  --primary-light:     var(--brand-blue-light);
+  --primary-dark:      var(--brand-blue-dark);
+  --primary-50:        var(--brand-blue-50);
+  --primary-glow:      var(--brand-blue-glow);
+  --primary-bg:        rgba(37, 99, 235, 0.08);
 
-  /* Primary — Royal Emerald / Civic Teal for all main buttons & active states */
-  --primary:        var(--brand-teal);
-  --primary-light:  var(--brand-teal-light);
-  --primary-dark:   var(--brand-teal-dark);
-  --primary-50:     var(--brand-teal-50);
-  --primary-glow:   var(--brand-teal-glow);
-  --primary-bg:     rgba(13, 148, 136, 0.08);
+  /* Secondary (Green) */
+  --secondary:         var(--brand-green);
+  --secondary-light:   var(--brand-green-light);
+  --secondary-dark:    var(--brand-green-dark);
+  --secondary-50:      var(--brand-green-50);
+  --secondary-glow:    var(--brand-green-glow);
+  --secondary-bg:      rgba(5, 150, 105, 0.08);
 
-  /* Secondary — Saffron Gold for highlights and badges */
-  --secondary:      var(--brand-saffron);
-  --secondary-light: var(--brand-saffron-light);
-  --secondary-dark: var(--brand-saffron-dark);
-  --secondary-bg:   rgba(245, 158, 11, 0.08);
+  /* Accent (Orange / Red) */
+  --accent:            var(--brand-orange);
+  --accent-light:      var(--color-warning-400);
+  --accent-dark:       var(--color-warning-600);
+  --accent-glow:       rgba(249, 115, 22, 0.25);
+  --accent-bg:         rgba(249, 115, 22, 0.08);
 
-  /* Accent — Electric Indigo for variety */
-  --accent:         #6366F1;
-  --accent-light:   #818CF8;
-  --accent-bg:      rgba(99, 102, 241, 0.06);
+  /* Semantic Feedback */
+  --success:           var(--brand-green);
+  --success-light:     var(--brand-green-light);
+  --success-bg:        rgba(5, 150, 105, 0.08);
+  --success-border:    rgba(5, 150, 105, 0.2);
 
-  /* Success */
-  --success:        #059669;
-  --success-light:  #10B981;
-  --success-bg:     rgba(5, 150, 105, 0.08);
-  --success-border: rgba(5, 150, 105, 0.2);
+  --warning:           var(--brand-orange);
+  --warning-light:     var(--color-warning-400);
+  --warning-bg:        rgba(249, 115, 22, 0.08);
+  --warning-border:    rgba(249, 115, 22, 0.2);
 
-  /* Warning */
-  --warning:        #D97706;
-  --warning-light:  #F59E0B;
-  --warning-bg:     rgba(217, 119, 6, 0.08);
-  --warning-border: rgba(217, 119, 6, 0.2);
+  --danger:            var(--brand-red);
+  --danger-light:      var(--brand-red-light);
+  --danger-bg:         rgba(220, 38, 38, 0.08);
+  --danger-border:     rgba(220, 38, 38, 0.2);
 
-  /* Danger */
-  --danger:         #DC2626;
-  --danger-light:   #EF4444;
-  --danger-bg:      rgba(220, 38, 38, 0.08);
-  --danger-border:  rgba(220, 38, 38, 0.2);
+  --info:              var(--brand-blue);
+  --info-light:        var(--brand-blue-light);
+  --info-bg:           rgba(37, 99, 235, 0.08);
 
-  /* Info */
-  --info:           #0284C7;
-  --info-light:     #38BDF8;
-  --info-bg:        rgba(2, 132, 199, 0.08);
-
-  /* Text */
-  --text-primary:   #0B1929;
-  --text-secondary: #475569;
-  --text-tertiary:  #64748B;
-  --text-muted:     #94A3B8;
-  --text-inverse:   #FFFFFF;
-  --text-link:      var(--brand-teal);
-  --text-sidebar:   #94A3B8;
-  --text-sidebar-active: #FFFFFF;
+  /* Text Colors */
+  --text-primary:      #0f172a;
+  --text-secondary:    #475569;
+  --text-tertiary:     #64748b;
+  --text-muted:        #94a3b8;
+  --text-inverse:      #ffffff;
+  --text-link:         var(--brand-blue);
+  --text-sidebar:      #94a3b8;
+  --text-sidebar-active:#ffffff;
 
   /* Borders */
-  --border:         #E2E8F0;
-  --border-light:   #F1F5F9;
-  --border-focus:   rgba(13, 148, 136, 0.5);
-  --border-hover:   #CBD5E1;
+  --border:            #e2e8f0;
+  --border-light:      #f1f5f9;
+  --border-focus:      rgba(37, 99, 235, 0.5);
+  --border-hover:      #cbd5e1;
 
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, var(--brand-teal), var(--brand-teal-light));
-  --gradient-accent:  linear-gradient(135deg, var(--brand-midnight), var(--brand-teal));
-  --gradient-teal:    linear-gradient(135deg, var(--brand-teal-dark), var(--brand-teal-light));
-  --gradient-success: linear-gradient(135deg, #059669, var(--brand-teal));
-  --gradient-danger:  linear-gradient(135deg, #DC2626, var(--brand-saffron));
-  --gradient-hero:    linear-gradient(135deg, var(--brand-midnight-50) 0%, var(--brand-teal-50) 50%, var(--brand-saffron-50) 100%);
-  --gradient-mesh:    radial-gradient(ellipse at 20% 50%, rgba(13, 148, 136, 0.04) 0%, transparent 50%),
-                      radial-gradient(ellipse at 80% 20%, rgba(245, 158, 11, 0.03) 0%, transparent 50%),
-                      radial-gradient(ellipse at 50% 80%, rgba(99, 102, 241, 0.03) 0%, transparent 50%);
-  --gradient-card:    linear-gradient(180deg, #FFFFFF 0%, #F8FAFB 100%);
-  --gradient-sidebar: linear-gradient(180deg, var(--brand-midnight) 0%, var(--brand-midnight-dark) 100%);
-  --gradient-glow:    linear-gradient(135deg, rgba(13,148,136,0.15), rgba(245,158,11,0.1));
-  --gradient-shimmer: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%);
+  /* --- FarmDirect Gradients (Tuned to Blue / Green / Red-Orange) --- */
+  --gradient-primary:  linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+  --gradient-accent:   linear-gradient(135deg, var(--brand-blue), var(--brand-green));
+  --gradient-blue:     linear-gradient(135deg, var(--color-primary-600), var(--color-primary-800));
+  --gradient-green:    linear-gradient(135deg, var(--color-accent-600), var(--color-accent-700));
+  --gradient-success:  linear-gradient(135deg, var(--color-accent-500), var(--color-accent-600));
+  --gradient-danger:   linear-gradient(135deg, var(--color-alert-600), var(--color-warning-500));
+  --gradient-hero:     linear-gradient(135deg, #eff6ff 0%, #ecfdf5 50%, #fff7ed 100%);
+  --gradient-mesh:     radial-gradient(at 40% 20%, rgba(37, 99, 235, 0.12) 0, transparent 50%),
+                       radial-gradient(at 80% 0%, rgba(5, 150, 105, 0.10) 0, transparent 50%),
+                       radial-gradient(at 0% 50%, rgba(249, 115, 22, 0.08) 0, transparent 50%),
+                       radial-gradient(at 80% 50%, rgba(37, 99, 235, 0.06) 0, transparent 50%),
+                       radial-gradient(at 0% 100%, rgba(5, 150, 105, 0.05) 0, transparent 50%);
+  --gradient-card:     linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  --gradient-sidebar:  linear-gradient(180deg, var(--brand-midnight) 0%, var(--brand-midnight-dark) 100%);
+  --gradient-glow:     linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(5, 150, 105, 0.15));
 
-  /* Shadows */
-  --shadow-xs:   0 1px 2px rgba(11, 25, 41, 0.04);
-  --shadow-sm:   0 1px 3px rgba(11, 25, 41, 0.06), 0 1px 2px rgba(11, 25, 41, 0.04);
-  --shadow-md:   0 4px 6px -1px rgba(11, 25, 41, 0.06), 0 2px 4px -2px rgba(11, 25, 41, 0.04);
-  --shadow-lg:   0 10px 15px -3px rgba(11, 25, 41, 0.06), 0 4px 6px -4px rgba(11, 25, 41, 0.04);
-  --shadow-xl:   0 20px 25px -5px rgba(11, 25, 41, 0.08), 0 8px 10px -6px rgba(11, 25, 41, 0.04);
-  --shadow-2xl:  0 25px 50px -12px rgba(11, 25, 41, 0.15);
-  --shadow-glow: 0 0 20px var(--brand-teal-glow);
-  --shadow-glow-coral: 0 0 20px var(--brand-saffron-glow);
-  --shadow-card: 0 1px 3px rgba(11,25,41,0.04), 0 1px 2px rgba(11,25,41,0.06);
-  --shadow-card-hover: 0 10px 25px -5px rgba(11, 25, 41, 0.1), 0 8px 10px -6px rgba(11, 25, 41, 0.06);
-  --shadow-float: 0 20px 40px rgba(11, 25, 41, 0.12), 0 0 1px rgba(11, 25, 41, 0.1);
-  --shadow-inner: inset 0 2px 4px rgba(11, 25, 41, 0.05);
+  /* --- FarmDirect Shadows & Glows --- */
+  --shadow-xs:         0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm:         0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md:         0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg:         0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl:         0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-2xl:        0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-glow-primary: 0 0 20px rgba(37, 99, 235, 0.35);
+  --shadow-glow-accent:  0 0 20px rgba(5, 150, 105, 0.35);
+  --shadow-glow-alert:   0 0 20px rgba(249, 115, 22, 0.35);
+  --shadow-card:       0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-card-hover: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.06);
 
-  /* Spacing */
+  /* --- FarmDirect Typography Tokens --- */
+  --font-heading: 'Outfit', 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  /* FarmDirect Fluid Typography Scale */
+  --text-xs:   clamp(0.694rem, 0.66rem + 0.17vw, 0.8rem);
+  --text-sm:   clamp(0.833rem, 0.78rem + 0.27vw, 1rem);
+  --text-base: clamp(1rem, 0.93rem + 0.36vw, 1.25rem);
+  --text-lg:   clamp(1.2rem, 1.1rem + 0.5vw, 1.563rem);
+  --text-xl:   clamp(1.44rem, 1.3rem + 0.7vw, 1.953rem);
+  --text-2xl:  clamp(1.728rem, 1.53rem + 0.99vw, 2.441rem);
+  --text-3xl:  clamp(2.074rem, 1.79rem + 1.42vw, 3.052rem);
+  --text-4xl:  clamp(2.488rem, 2.09rem + 1.99vw, 3.815rem);
+  --text-5xl:  clamp(2.986rem, 2.43rem + 2.78vw, 4.768rem);
+
+  /* --- Spacing Scale --- */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
   --space-xs:  0.25rem;
   --space-sm:  0.5rem;
   --space-md:  1rem;
   --space-lg:  1.5rem;
   --space-xl:  2rem;
-  --space-2xl: 3rem;
-  --space-3xl: 4rem;
 
-  /* Typography */
-  --font-display: 'Playfair Display', 'Georgia', serif;
-  --font-heading: 'Poppins', system-ui, sans-serif;
-  --font-body:    'Open Sans', system-ui, sans-serif;
-  --font-caption: 'Inter', system-ui, sans-serif;
-  --font-ui:      'Roboto', system-ui, sans-serif;
-  --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
-
-  --text-xs:   0.75rem;
-  --text-sm:   0.875rem;
-  --text-base: 1rem;
-  --text-lg:   1.125rem;
-  --text-xl:   1.25rem;
-  --text-2xl:  1.5rem;
-  --text-3xl:  1.875rem;
-  --text-4xl:  2.25rem;
-  --text-5xl:  3rem;
-
-  /* Radii */
-  --radius-sm:   6px;
-  --radius-md:   8px;
-  --radius-lg:   12px;
-  --radius-xl:   16px;
-  --radius-2xl:  20px;
+  /* --- FarmDirect Radii --- */
+  --radius-sm:   0.375rem;
+  --radius-md:   0.5rem;
+  --radius-lg:   0.75rem;
+  --radius-xl:   1rem;
+  --radius-2xl:  1.5rem;
+  --radius-3xl:  2rem;
   --radius-full: 9999px;
 
+  /* --- FarmDirect Transitions & Easings --- */
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in:      cubic-bezier(0.4, 0, 1, 1);
+  --ease-out:     cubic-bezier(0, 0, 0.2, 1);
+  --ease-bounce:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-spring:  cubic-bezier(0.22, 1, 0.36, 1);
+
+  --duration-fast:   150ms;
+  --duration-normal: 250ms;
+  --duration-slow:   400ms;
+  --duration-slower: 600ms;
+
+  --transition-fast:   150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base:   250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   400ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
   /* Layout */
-  --navbar-height:    56px;
+  --navbar-height:    72px;
   --sidebar-width:    260px;
-  --sidebar-collapsed: 64px;
+  --sidebar-collapsed: 72px;
   --container-max:    1280px;
+  --container-xl:     1280px;
+  --container-2xl:    1440px;
 
   /* Z-Index */
-  --z-dropdown: 50;
-  --z-sticky:   100;
-  --z-fixed:    200;
+  --z-base:     0;
+  --z-dropdown: 100;
+  --z-sticky:   200;
+  --z-fixed:    250;
   --z-sidebar:  250;
   --z-overlay:  300;
   --z-modal:    400;
   --z-toast:    500;
-
-  /* Transitions */
-  --transition-fast:   150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-base:   200ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow:   300ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-spring: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
-  --transition-bounce: 500ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --z-tooltip:  600;
 }
 
-/* --- Base Reset --- */
+/* ============================================
+   2. RESET & BASE STYLES
+   ============================================ */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -202,404 +308,473 @@
 }
 
 html {
-  font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   scroll-behavior: smooth;
 }
 
 body {
   font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.6;
   color: var(--text-primary);
   background-color: var(--bg-page);
-  line-height: 1.6;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* --- Typography Hierarchy --- */
-h1, h2 {
-  font-family: var(--font-display);
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
   font-weight: 700;
   line-height: 1.2;
   color: var(--text-primary);
-}
-h3, h4 {
-  font-family: var(--font-heading);
-  font-weight: 600;
-  line-height: 1.3;
-  color: var(--text-primary);
-}
-h5, h6 {
-  font-family: var(--font-body);
-  font-weight: 600;
-  line-height: 1.4;
-  color: var(--text-primary);
+  letter-spacing: -0.02em;
 }
 
-h1 { font-size: var(--text-4xl); }
-h2 { font-size: var(--text-3xl); }
-h3 { font-size: var(--text-2xl); }
-h4 { font-size: var(--text-xl); }
-h5 { font-size: var(--text-lg); }
-h6 { font-size: var(--text-base); }
+h1 { font-size: var(--text-5xl); }
+h2 { font-size: var(--text-4xl); }
+h3 { font-size: var(--text-3xl); }
+h4 { font-size: var(--text-2xl); }
+h5 { font-size: var(--text-xl); }
+h6 { font-size: var(--text-lg); }
 
 p {
   color: var(--text-secondary);
-  line-height: 1.7;
+  line-height: 1.65;
 }
 
 a {
-  color: var(--text-link);
+  color: var(--primary);
   text-decoration: none;
-  transition: color var(--transition-fast);
+  transition: color var(--duration-fast) var(--ease-default);
 }
 a:hover {
-  color: var(--secondary-dark);
+  color: var(--primary-dark);
 }
 
 img, video, svg {
   display: block;
   max-width: 100%;
+  height: auto;
 }
 
-/* --- Utility Classes --- */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* ============================================
+   3. FARMDIRECT LAYOUT UTILITIES
+   ============================================ */
 .container {
   width: 100%;
-  max-width: var(--container-max);
-  margin: 0 auto;
-  padding: 0 var(--space-lg);
+  max-width: var(--container-xl);
+  margin-inline: auto;
+  padding-inline: var(--space-6);
 }
+
+@media (min-width: 1440px) {
+  .container { max-width: var(--container-2xl); }
+}
+
+.section {
+  padding-block: var(--space-20);
+}
+
+@media (max-width: 768px) {
+  .section { padding-block: var(--space-12); }
+}
+
+.section-header {
+  text-align: center;
+  max-width: 720px;
+  margin-inline: auto;
+  margin-bottom: var(--space-12);
+}
+
+.section-header h2 {
+  margin-bottom: var(--space-3);
+}
+
+.section-header p {
+  font-size: var(--text-lg);
+  color: var(--text-tertiary);
+}
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-heading);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary-700);
+  margin-bottom: var(--space-3);
+  padding: var(--space-1) var(--space-4);
+  background: var(--color-primary-50);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-primary-200);
+}
+
+.section-label-green {
+  color: var(--color-accent-700);
+  background: var(--color-accent-50);
+  border-color: var(--color-accent-200);
+}
+
+.section-label-alert {
+  color: var(--color-alert-700);
+  background: var(--color-alert-50);
+  border-color: var(--color-alert-200);
+}
+
+/* Grid & Flex */
+.grid {
+  display: grid;
+  gap: var(--space-6);
+}
+.grid-2 { grid-template-columns: repeat(2, 1fr); display: grid; gap: var(--space-6); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); display: grid; gap: var(--space-6); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); display: grid; gap: var(--space-6); }
+
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+}
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-center { align-items: center; justify-content: center; }
+.flex-between { align-items: center; justify-content: space-between; }
+.flex-wrap { flex-wrap: wrap; }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+.gap-8 { gap: var(--space-8); }
 
 .text-center { text-align: center; }
 .text-muted { color: var(--text-muted); }
 
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-accent-500));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .gradient-text {
-  background: var(--gradient-teal);
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-800));
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.gradient-text-accent {
-  background: var(--gradient-accent);
+.gradient-text-green {
+  background: linear-gradient(135deg, var(--color-accent-600), var(--color-accent-800));
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.mesh-bg {
-  background: var(--gradient-mesh);
-  background-color: var(--bg-page);
-}
-
-/* --- Glassmorphism --- */
-.glass {
-  background: var(--bg-glass);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.glass-dark {
-  background: rgba(11, 25, 41, 0.75);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* --- Scrollbar --- */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: var(--radius-full);
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--border-hover);
-}
-
-/* --- Skip Navigation (Accessibility) --- */
-.skip-nav {
-  position: absolute;
-  top: -100%;
-  left: var(--space-md);
-  padding: var(--space-sm) var(--space-md);
-  background: var(--brand-coral);
-  color: white;
-  font-weight: 600;
-  border-radius: 0 0 var(--radius-md) var(--radius-md);
-  z-index: var(--z-toast);
-  transition: top var(--transition-fast);
-}
-.skip-nav:focus {
-  top: 0;
-}
-
-/* --- Page layout --- */
-.page-wrapper {
-  min-height: 100vh;
-}
-
-.page-content {
-  padding: var(--space-xl) 0;
-}
-
-/* --- Grid layouts --- */
-.grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-lg);
-}
-.grid-3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-lg);
-}
-.grid-4 {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-lg);
-}
-
-@media (max-width: 1024px) {
-  .grid-4 { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 768px) {
-  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-}
-
-/* --- Section --- */
-.section-header {
-  margin-bottom: var(--space-xl);
-}
-.section-title {
-  font-size: var(--text-2xl);
-  font-weight: 800;
-  color: var(--text-primary);
-}
-.section-subtitle {
-  font-size: var(--text-sm);
-  color: var(--text-tertiary);
-  margin-top: var(--space-xs);
+.gradient-text-alert {
+  background: linear-gradient(135deg, var(--color-alert-600), var(--color-warning-500));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* ============================================
-   ANIMATIONS — Dynamic & Premium
+   4. FARMDIRECT GLASSMORPHISM & SPECIAL EFFECTS
+   ============================================ */
+.glass {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: var(--shadow-md);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gradient-mesh {
+  background: var(--gradient-mesh);
+}
+
+/* ============================================
+   5. FARMDIRECT ANIMATION SUITE
    ============================================ */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
 @keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-16px); }
+  from { opacity: 0; transform: translateY(-24px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
 @keyframes fadeInLeft {
-  from { opacity: 0; transform: translateX(-20px); }
+  from { opacity: 0; transform: translateX(-24px); }
   to { opacity: 1; transform: translateX(0); }
 }
+
 @keyframes fadeInRight {
-  from { opacity: 0; transform: translateX(20px); }
+  from { opacity: 0; transform: translateX(24px); }
   to { opacity: 1; transform: translateX(0); }
 }
-@keyframes slideInRight {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
-}
-@keyframes slideInLeft {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(0); }
-}
-@keyframes slideInUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-@keyframes slideInDown {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(0); }
-}
+
 @keyframes scaleIn {
   from { opacity: 0; transform: scale(0.92); }
   to { opacity: 1; transform: scale(1); }
 }
-@keyframes scaleInBounce {
-  0% { opacity: 0; transform: scale(0.85); }
-  60% { opacity: 1; transform: scale(1.03); }
-  100% { opacity: 1; transform: scale(1); }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
 }
-@keyframes pulse {
+
+@keyframes pulse-soft {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  50% { opacity: 0.7; }
 }
-@keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.3); }
-  50% { box-shadow: 0 0 0 8px rgba(13, 148, 136, 0); }
-}
-@keyframes pulseGlowCoral {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.3); }
-  50% { box-shadow: 0 0 0 8px rgba(244, 63, 94, 0); }
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
-@keyframes ripple {
-  0% { transform: scale(0); opacity: 0.5; }
-  100% { transform: scale(4); opacity: 0; }
+
+@keyframes blob {
+  0%, 100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    transform: translate(10px, -20px) scale(1.05);
+  }
+  66% {
+    border-radius: 50% 60% 30% 60% / 30% 50% 70% 50%;
+    transform: translate(-10px, 10px) scale(0.95);
+  }
 }
-@keyframes breathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-}
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-@keyframes borderGlow {
-  0%, 100% { border-color: var(--brand-teal); box-shadow: 0 0 8px rgba(13,148,136,0.2); }
-  50% { border-color: var(--brand-teal-light); box-shadow: 0 0 16px rgba(20,184,166,0.3); }
-}
+
 @keyframes countUp {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
-@keyframes slideReveal {
-  from { clip-path: inset(0 100% 0 0); }
-  to { clip-path: inset(0 0 0 0); }
-}
 
-/* --- Animation Utility Classes --- */
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
-}
-.animate-fade-in-up {
-  animation: fadeInUp 0.5s ease-out forwards;
-}
-.animate-fade-in-down {
-  animation: fadeInDown 0.5s ease-out forwards;
-}
-.animate-fade-in-left {
-  animation: fadeInLeft 0.5s ease-out forwards;
-}
-.animate-fade-in-right {
-  animation: fadeInRight 0.5s ease-out forwards;
-}
-.animate-scale-in {
-  animation: scaleIn 0.4s ease-out forwards;
-}
-.animate-scale-bounce {
-  animation: scaleInBounce 0.5s ease-out forwards;
-}
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-.animate-pulse-glow {
-  animation: pulseGlow 2s ease-in-out infinite;
-}
-.animate-shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%);
-  background-size: 200% 100%;
-  animation: shimmer 2s ease-in-out infinite;
-}
-.animate-breathe {
-  animation: breathe 4s ease-in-out infinite;
-}
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradientShift 6s ease infinite;
-}
-.animate-count {
-  animation: countUp 0.6s ease-out forwards;
-}
-.animate-reveal {
-  animation: slideReveal 0.6s ease-out forwards;
-}
+.animate-fade-in { animation: fadeIn var(--duration-slow) var(--ease-out) both; }
+.animate-fade-in-up { animation: fadeInUp var(--duration-slow) var(--ease-spring) both; }
+.animate-fade-in-down { animation: fadeInDown var(--duration-slow) var(--ease-spring) both; }
+.animate-scale-in { animation: scaleIn var(--duration-slow) var(--ease-spring) both; }
+.animate-float { animation: float 6s var(--ease-default) infinite; }
 
-.stagger-1 { animation-delay: 0.05s; }
-.stagger-2 { animation-delay: 0.1s; }
-.stagger-3 { animation-delay: 0.15s; }
-.stagger-4 { animation-delay: 0.2s; }
-.stagger-5 { animation-delay: 0.25s; }
-.stagger-6 { animation-delay: 0.3s; }
+.delay-1 { animation-delay: 100ms; }
+.delay-2 { animation-delay: 200ms; }
+.delay-3 { animation-delay: 300ms; }
+.delay-4 { animation-delay: 400ms; }
+.delay-5 { animation-delay: 500ms; }
 
-/* --- Hover micro-interactions --- */
+/* Micro-interactions */
 .hover-lift {
-  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  transition: transform var(--duration-normal) var(--ease-default), box-shadow var(--duration-normal) var(--ease-default);
 }
 .hover-lift:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
 }
 
 .hover-scale {
-  transition: transform var(--transition-spring);
+  transition: transform var(--duration-normal) var(--ease-spring);
 }
 .hover-scale:hover {
   transform: scale(1.03);
 }
 
 .hover-glow {
-  transition: box-shadow var(--transition-base);
+  transition: box-shadow var(--duration-normal) var(--ease-default);
 }
 .hover-glow:hover {
-  box-shadow: var(--shadow-glow);
+  box-shadow: var(--shadow-glow-primary);
 }
 
-.hover-glow-coral {
-  transition: box-shadow var(--transition-base);
-}
-.hover-glow-coral:hover {
-  box-shadow: var(--shadow-glow-coral);
+.hover-glow-green:hover {
+  box-shadow: var(--shadow-glow-accent);
 }
 
-/* --- Loading Spinner --- */
+.hover-glow-alert:hover {
+  box-shadow: var(--shadow-glow-alert);
+}
+
+/* ============================================
+   6. SCROLLBAR & SELECTION
+   ============================================ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-neutral-100);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-300);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-400);
+}
+
+::selection {
+  background: var(--color-primary-100);
+  color: var(--color-primary-900);
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   7. FARMDIRECT COMPONENT STYLES
+   ============================================ */
+
+/* Button System */
+.btn-farm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-weight: 600;
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all var(--duration-normal) var(--ease-default);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn-farm-primary {
+  background: var(--gradient-primary);
+  color: #ffffff;
+  box-shadow: var(--shadow-md), 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+.btn-farm-primary:hover {
+  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-600));
+  box-shadow: var(--shadow-lg), 0 4px 16px rgba(37, 99, 235, 0.35);
+  transform: translateY(-2px);
+}
+
+.btn-farm-secondary {
+  background: var(--gradient-green);
+  color: #ffffff;
+  box-shadow: var(--shadow-md), 0 2px 8px rgba(5, 150, 105, 0.25);
+}
+.btn-farm-secondary:hover {
+  background: linear-gradient(135deg, var(--color-accent-500), var(--color-accent-600));
+  box-shadow: var(--shadow-lg), 0 4px 16px rgba(5, 150, 105, 0.35);
+  transform: translateY(-2px);
+}
+
+.btn-farm-accent {
+  background: linear-gradient(135deg, var(--color-warning-500), var(--color-alert-600));
+  color: #ffffff;
+  box-shadow: var(--shadow-md), 0 2px 8px rgba(249, 115, 22, 0.25);
+}
+.btn-farm-accent:hover {
+  background: linear-gradient(135deg, var(--color-warning-400), var(--color-alert-500));
+  box-shadow: var(--shadow-lg), 0 4px 16px rgba(249, 115, 22, 0.35);
+  transform: translateY(-2px);
+}
+
+.btn-farm-outline {
+  background: transparent;
+  color: var(--color-primary-700);
+  border-color: var(--color-primary-300);
+}
+.btn-farm-outline:hover {
+  background: var(--color-primary-50);
+  border-color: var(--color-primary-500);
+  transform: translateY(-1px);
+}
+
+/* Card System */
+.card-farm {
+  background: var(--color-neutral-0);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--duration-normal) var(--ease-default);
+}
+.card-farm:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+.card-farm-glass {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+  transition: all var(--duration-normal) var(--ease-default);
+}
+.card-farm-glass:hover {
+  background: rgba(255, 255, 255, 0.85);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Loading Spinner */
 .loading-spinner {
   width: 20px;
   height: 20px;
   border: 2px solid var(--border);
-  border-top-color: var(--brand-teal);
+  border-top-color: var(--primary);
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
 
-/* --- Empty State --- */
-.empty-state {
-  text-align: center;
-  padding: var(--space-3xl) var(--space-lg);
-  color: var(--text-muted);
-}
-.empty-state svg {
-  margin: 0 auto var(--space-lg);
-  color: var(--border-hover);
-}
-.empty-state h3 {
-  color: var(--text-tertiary);
-  margin-bottom: var(--space-sm);
-}
-
-/* --- Footer --- */
+/* Footer */
 .footer {
   text-align: center;
-  padding: var(--space-2xl) var(--space-lg);
+  padding: var(--space-12) var(--space-6);
   color: var(--text-muted);
   font-size: var(--text-xs);
   border-top: 1px solid var(--border);
-  margin-top: var(--space-3xl);
+  margin-top: var(--space-16);
 }
