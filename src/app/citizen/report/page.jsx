@@ -12,45 +12,91 @@ export default function AddIssueFlow() {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('other');
   const [description, setDescription] = useState('');
+  const [locationLat, setLocationLat] = useState(null);
+  const [locationLng, setLocationLng] = useState(null);
+  const [address, setAddress] = useState('');
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+  const [locationError, setLocationError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
+  const detectLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported by your browser");
+      return;
+    }
+
+    setIsDetectingLocation(true);
+    setLocationError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        setLocationLat(lat);
+        setLocationLng(lng);
+
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+          const data = await res.json();
+          if (data && data.display_name) {
+            setAddress(data.display_name);
+          } else {
+            setAddress(`${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+          }
+        } catch (err) {
+          console.error("Geocoding failed", err);
+          setAddress(`${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+        }
+        setIsDetectingLocation(false);
+      },
+      (error) => {
+        setIsDetectingLocation(false);
+        setLocationError("Unable to retrieve your location. Please check your permissions.");
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title) return;
+    if (!title || !address || locationLat === null) {
+      setError("Please fill all required fields and detect your location.");
+      return;
+    }
     
     setSubmitting(true);
     setError(null);
 
     try {
-      if (supabase) {
-        const { error: insertError } = await supabase.from('problems').insert([
-          {
-            title,
-            category,
-            description,
-            user_id: user?.id,
-            locality_id: user?.locality_id || 'kothrud',
-            status: 'reported',
-            location_lat: 18.5204, // Mock Pune coordinates
-            location_lng: 73.8567,
-            location_address: 'Citizen Reported Location'
-          }
-        ]);
-        if (insertError) throw insertError;
+      const { createIssue } = await import('@/lib/api');
+      const { error: insertError } = await createIssue({
+        title,
+        category,
+        description,
+        user_id: user?.id || 'anonymous',
+        locality_id: user?.locality_id || 'kothrud',
+        status: 'reported',
+        location_lat: locationLat,
+        location_lng: locationLng,
+        location_address: address
+      });
+      
+      if (insertError) {
+        throw new Error(typeof insertError === 'string' ? insertError : (insertError.message || JSON.stringify(insertError)));
       }
       
       // Navigate back to dashboard on success
       router.push('/citizen');
     } catch (err) {
-      console.error('Error submitting issue:', err);
+      console.error('Error submitting issue:', err.message || err);
       setError(err.message || 'Failed to submit issue');
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="stitch-page-content p-md md:p-lg xl:p-xl flex-1 max-w-[1280px] mx-auto w-full">
+    <div className="stitch-page-content p-md md:p-lg xl:p-xl flex-1 max-w-full mx-auto w-full">
       <div className="w-full max-w-2xl flex justify-between items-center mb-lg">
         <Link href="/citizen" className="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2">
           <span className="material-symbols-outlined">close</span>
@@ -128,6 +174,38 @@ export default function AddIssueFlow() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             ></textarea>
+          </div>
+
+          <div className="flex flex-col gap-xs">
+            <label className="font-label-md text-label-md text-on-surface">Location *</label>
+            <div className="flex flex-col sm:flex-row gap-sm items-start sm:items-center">
+              <button 
+                type="button"
+                onClick={detectLocation}
+                disabled={isDetectingLocation}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-on-secondary hover:bg-secondary-fixed hover:text-on-secondary-container transition-colors font-label-md text-sm disabled:opacity-50 whitespace-nowrap border-none cursor-pointer shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[18px]">
+                  {isDetectingLocation ? 'hourglass_empty' : 'my_location'}
+                </span>
+                {isDetectingLocation ? 'Detecting...' : 'Detect Location'}
+              </button>
+              
+              <input 
+                className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary transition-shadow placeholder:text-outline" 
+                placeholder="Address will appear here..." 
+                type="text" 
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required
+              />
+            </div>
+            {locationError && <p className="text-error font-body-sm text-sm mt-1">{locationError}</p>}
+            {locationLat && locationLng && !locationError && (
+              <p className="text-primary font-body-sm text-sm mt-1">
+                Coordinates captured: {locationLat.toFixed(4)}, {locationLng.toFixed(4)}
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-md mt-md">

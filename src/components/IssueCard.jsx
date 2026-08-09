@@ -3,8 +3,6 @@ import { useRef, useEffect } from 'react';
 import Link from 'next/link';
 
 import { MapPin, ThumbsUp, MessageCircle, Clock } from 'lucide-react';
-import { CATEGORIES } from '@/data/mockData';
-import { getUserById } from '@/data/store';
 import { apply3DTilt } from '../utils/animeEngine';
 
 function timeAgo(dateStr) {
@@ -47,7 +45,7 @@ function priorityClass(severity) {
 
 export default function IssueCard({ issue }) {
   const cardRef = useRef(null);
-  const category = CATEGORIES.find(c => c.id === issue.category);
+  const category = { label: issue.category || 'Other' };
 
   useEffect(() => {
     if (cardRef.current) {
@@ -56,7 +54,7 @@ export default function IssueCard({ issue }) {
   }, []);
 
   return (
-    <Link ref={cardRef} href={`/issue/${issue.id}`} className="issue-card card-3d">
+    <Link ref={cardRef} href={`/citizen/issue/${issue.id}`} className="issue-card card-3d">
       <div className={`priority-bar ${priorityClass(issue.severity)}`} style={{ alignSelf: 'stretch' }} />
       <div className="issue-card-body">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>

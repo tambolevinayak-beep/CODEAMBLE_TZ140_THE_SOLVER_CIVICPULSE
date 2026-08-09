@@ -60,11 +60,8 @@ export default function AdminLayout({ children }) {
   const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
   return (
-    <div className="citizen-layout">
-      {/* Skip nav */}
-      <a href="#main-content" className="skip-nav">Skip to content</a>
-
-      {/* Mobile backdrop */}
+    <div className="flex h-screen overflow-hidden bg-surface">
+      {/* Mobile Sidebar Overlay */}
       {mobileOpen && <div className="sidebar-backdrop" onClick={() => setMobileOpen(false)} />}
 
       {/* Sidebar */}

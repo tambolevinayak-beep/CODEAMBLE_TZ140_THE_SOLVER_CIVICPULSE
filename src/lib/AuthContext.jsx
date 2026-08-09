@@ -9,36 +9,28 @@ const AuthContext = createContext(null);
 export const AUTH_DISABLED = true;
 
 const DEMO_USERS = {
-  citizen: {
-    id: 'user-citizen-demo',
-    email: 'citizen@civicpulse.app',
-    name: 'Aarav Mehta',
-    role: 'citizen',
-    locality_id: 'kothrud',
-    assigned_locality_id: null,
-    avatar_url: null,
-    impact_score: 450,
-  },
-  moderator: {
-    id: 'user-moderator-demo',
-    email: 'moderator@civicpulse.app',
-    name: 'Arjun Menon',
-    role: 'moderator',
-    locality_id: 'kothrud',
-    assigned_locality_id: 'kothrud',
-    avatar_url: null,
-    impact_score: 0,
-  },
-  super_admin: {
-    id: 'user-admin-demo',
+  admin: {
+    id: '00000000-0000-4000-a000-000000000001',
     email: 'admin@civicpulse.app',
     name: 'Commissioner Singh',
     role: 'super_admin',
     locality_id: null,
     assigned_locality_id: null,
     avatar_url: null,
-    impact_score: 0,
+    impact_score: 1200,
   },
+  citizen_1: { id: '00000000-0000-4000-a000-000000000101', email: 'citizen1@civicpulse.app', name: 'Aarav Mehta', role: 'citizen', locality_id: 'kothrud', assigned_locality_id: null, avatar_url: null, impact_score: 450 },
+  citizen_2: { id: '00000000-0000-4000-a000-000000000102', email: 'citizen2@civicpulse.app', name: 'Neha Sharma', role: 'citizen', locality_id: 'baner', assigned_locality_id: null, avatar_url: null, impact_score: 320 },
+  citizen_3: { id: '00000000-0000-4000-a000-000000000103', email: 'citizen3@civicpulse.app', name: 'Rahul Desai', role: 'citizen', locality_id: 'viman_nagar', assigned_locality_id: null, avatar_url: null, impact_score: 150 },
+  citizen_4: { id: '00000000-0000-4000-a000-000000000104', email: 'citizen4@civicpulse.app', name: 'Priya Patel', role: 'citizen', locality_id: 'kothrud', assigned_locality_id: null, avatar_url: null, impact_score: 50 },
+  citizen_5: { id: '00000000-0000-4000-a000-000000000105', email: 'citizen5@civicpulse.app', name: 'Amit Kumar', role: 'citizen', locality_id: 'hadapsar', assigned_locality_id: null, avatar_url: null, impact_score: 800 },
+  citizen_6: { id: '00000000-0000-4000-a000-000000000106', email: 'citizen6@civicpulse.app', name: 'Sneha Reddy', role: 'citizen', locality_id: 'baner', assigned_locality_id: null, avatar_url: null, impact_score: 210 },
+  citizen_7: { id: '00000000-0000-4000-a000-000000000107', email: 'citizen7@civicpulse.app', name: 'Vikram Singh', role: 'citizen', locality_id: 'viman_nagar', assigned_locality_id: null, avatar_url: null, impact_score: 600 },
+  citizen_8: { id: '00000000-0000-4000-a000-000000000108', email: 'citizen8@civicpulse.app', name: 'Ananya Joshi', role: 'citizen', locality_id: 'kothrud', assigned_locality_id: null, avatar_url: null, impact_score: 95 },
+  citizen_9: { id: '00000000-0000-4000-a000-000000000109', email: 'citizen9@civicpulse.app', name: 'Rohan Gupta', role: 'citizen', locality_id: 'hadapsar', assigned_locality_id: null, avatar_url: null, impact_score: 410 },
+  citizen_10: { id: '00000000-0000-4000-a000-000000000110', email: 'citizen10@civicpulse.app', name: 'Meera Iyer', role: 'citizen', locality_id: 'baner', assigned_locality_id: null, avatar_url: null, impact_score: 280 },
+  citizen: { id: '00000000-0000-4000-a000-000000000100', email: 'citizen@civicpulse.app', name: 'Default Citizen', role: 'citizen', locality_id: 'kothrud', assigned_locality_id: null, avatar_url: null, impact_score: 450 },
+  super_admin: { id: '00000000-0000-4000-a000-000000000002', email: 'legacy_admin@civicpulse.app', name: 'Legacy Admin', role: 'super_admin', locality_id: null, assigned_locality_id: null, avatar_url: null, impact_score: 0 },
 };
 
 /**
@@ -131,13 +123,18 @@ export function AuthProvider({ children }) {
   const signIn = useCallback(async (email, password) => {
     setError(null);
 
-    if (isDemoMode) {
+    if (AUTH_DISABLED || isDemoMode) {
       // In demo mode, determine role from email
       let demoRole = 'citizen';
-      if (email.includes('admin')) demoRole = 'super_admin';
-      else if (email.includes('mod')) demoRole = 'moderator';
+      if (email.includes('admin')) demoRole = 'admin';
+      else if (email.includes('citizen')) {
+        const match = email.match(/citizen(\d+)/);
+        if (match && parseInt(match[1]) >= 1 && parseInt(match[1]) <= 10) {
+          demoRole = `citizen_${match[1]}`;
+        }
+      }
 
-      const demoUser = DEMO_USERS[demoRole];
+      const demoUser = DEMO_USERS[demoRole] || DEMO_USERS.citizen;
       (typeof window !== 'undefined' && localStorage.setItem('civicpulse_demo_session', JSON.stringify({ role: demoRole })));
       setUser(demoUser);
       setRole(demoUser.role);
@@ -162,7 +159,7 @@ export function AuthProvider({ children }) {
   const signUp = useCallback(async (email, password, name) => {
     setError(null);
 
-    if (isDemoMode) {
+    if (AUTH_DISABLED || isDemoMode) {
       const demoUser = { ...DEMO_USERS.citizen, name: name || 'New User', email };
       (typeof window !== 'undefined' && localStorage.setItem('civicpulse_demo_session', JSON.stringify({ role: 'citizen' })));
       setUser(demoUser);
@@ -246,7 +243,7 @@ export function AuthProvider({ children }) {
 
   // Switch role (demo mode only)
   const switchRole = useCallback((newRole) => {
-    const validRoles = ['citizen', 'moderator', 'super_admin'];
+    const validRoles = ['citizen', 'super_admin'];
     if (!validRoles.includes(newRole)) return;
 
     const demoUser = DEMO_USERS[newRole];

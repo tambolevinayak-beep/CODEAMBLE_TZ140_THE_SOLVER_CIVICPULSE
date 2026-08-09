@@ -13,12 +13,6 @@ export const ROLES = {
     icon: '👤',
     description: 'Report problems, support issues, track resolution',
   },
-  moderator: {
-    key: 'moderator',
-    label: 'Locality Moderator',
-    icon: '🛡️',
-    description: 'Verify and manage issues in assigned locality',
-  },
   super_admin: {
     key: 'super_admin',
     label: 'Super Admin',
@@ -33,28 +27,28 @@ export const ROLES = {
  */
 export const PERMISSIONS = {
   // Citizen actions
-  'problem:create':         ['citizen', 'moderator', 'super_admin'],
-  'problem:support':        ['citizen', 'moderator', 'super_admin'],
-  'problem:comment':        ['citizen', 'moderator', 'super_admin'],
-  'problem:flag':           ['citizen', 'moderator', 'super_admin'],
-  'problem:view':           ['citizen', 'moderator', 'super_admin'],
+  'problem:create':         ['citizen', 'super_admin'],
+  'problem:support':        ['citizen', 'super_admin'],
+  'problem:comment':        ['citizen', 'super_admin'],
+  'problem:flag':           ['citizen', 'super_admin'],
+  'problem:view':           ['citizen', 'super_admin'],
 
-  // Moderator actions
-  'problem:verify':         ['moderator', 'super_admin'],
-  'problem:reject':         ['moderator', 'super_admin'],
-  'problem:merge_duplicate': ['moderator', 'super_admin'],
-  'problem:escalate':       ['moderator', 'super_admin'],
-  'problem:update_status':  ['moderator', 'super_admin'],
+  // Moderator/Admin actions
+  'problem:verify':         ['super_admin'],
+  'problem:reject':         ['super_admin'],
+  'problem:merge_duplicate': ['super_admin'],
+  'problem:escalate':       ['super_admin'],
+  'problem:update_status':  ['super_admin'],
 
   // Control panel access
-  'cp:access':              ['moderator', 'super_admin'],
-  'cp:view_queue':          ['moderator', 'super_admin'],
-  'cp:view_analytics':      ['moderator', 'super_admin'],
-  'cp:view_map':            ['moderator', 'super_admin'],
+  'cp:access':              ['super_admin'],
+  'cp:view_queue':          ['super_admin'],
+  'cp:view_analytics':      ['super_admin'],
+  'cp:view_map':            ['super_admin'],
 
   // Super admin only
   'cp:manage_departments':  ['super_admin'],
-  'cp:manage_moderators':   ['super_admin'],
+  'cp:manage_officers':     ['super_admin'],
   'cp:manage_settings':     ['super_admin'],
   'cp:view_all_localities': ['super_admin'],
   'cp:view_audit_log':      ['super_admin'],
@@ -86,14 +80,14 @@ export function getPermissionsForRole(role) {
  * Route access control — which roles can access which route prefixes
  */
 const ROUTE_ACCESS = {
-  '/':                  ['citizen', 'moderator', 'super_admin'],
-  '/map':               ['citizen', 'moderator', 'super_admin'],
-  '/post':              ['citizen', 'moderator', 'super_admin'],
-  '/problem':           ['citizen', 'moderator', 'super_admin'],
-  '/notifications':     ['citizen', 'moderator', 'super_admin'],
-  '/profile':           ['citizen', 'moderator', 'super_admin'],
-  '/onboarding':        ['citizen', 'moderator', 'super_admin'],
-  '/control-panel':     ['moderator', 'super_admin'],
+  '/':                  ['citizen', 'super_admin'],
+  '/map':               ['citizen', 'super_admin'],
+  '/post':              ['citizen', 'super_admin'],
+  '/problem':           ['citizen', 'super_admin'],
+  '/notifications':     ['citizen', 'super_admin'],
+  '/profile':           ['citizen', 'super_admin'],
+  '/onboarding':        ['citizen', 'super_admin'],
+  '/control-panel':     ['super_admin'],
 };
 
 /**
@@ -141,10 +135,10 @@ export const CP_NAV_ITEMS = [
     permission: 'cp:manage_departments',
   },
   {
-    path: '/control-panel/moderators',
-    label: 'Moderators',
+    path: '/control-panel/officers',
+    label: 'Officers',
     icon: 'Users',
-    permission: 'cp:manage_moderators',
+    permission: 'cp:manage_officers',
   },
   {
     path: '/control-panel/settings',
@@ -161,29 +155,16 @@ export function getVisibleNavItems(role) {
   return CP_NAV_ITEMS.filter(item => hasPermission(role, item.permission));
 }
 
-/**
- * Get the data scope filter for a role.
- * - super_admin: null (sees everything)
- * - moderator: their assigned locality ID
- * - citizen: their own locality (for feed) but can browse others
- */
 export function getScopeFilter(role, assignedLocalityId) {
   if (role === 'super_admin') return null; // no filter — sees all
-  if (role === 'moderator') return assignedLocalityId || null;
   return null; // citizens see all in feed (ranked by proximity)
 }
 
-/**
- * Check if a user is staff (moderator or super_admin)
- */
 export function isStaff(role) {
-  return role === 'moderator' || role === 'super_admin';
+  return role === 'super_admin';
 }
 
-/**
- * Get the default redirect path for a role after login
- */
 export function getDefaultPath(role) {
-  if (role === 'moderator' || role === 'super_admin') return '/control-panel';
+  if (role === 'super_admin') return '/control-panel';
   return '/';
 }

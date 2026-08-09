@@ -8,53 +8,44 @@ export default {
   theme: {
     extend: {
       colors: {
-        "primary-fixed": "#cae6ff", 
-        "surface-tint": "#006493", 
-        "on-background": "#181c20", 
-        "on-error": "#ffffff", 
-        "inverse-primary": "#8ccdff", 
-        "tertiary": "#835500", 
-        "inverse-surface": "#2c3135", 
-        "surface-bright": "#f6f9ff", 
-        "on-tertiary-fixed-variant": "#633f00", 
-        "on-surface": "#181c20", 
-        "surface-container-low": "#f0f4f9", 
-        "primary-fixed-dim": "#8ccdff", 
-        "primary-container": "#2e9cdb", 
-        "on-surface-variant": "#3f4850", 
-        "outline-variant": "#bec7d1", 
-        "on-primary": "#ffffff", 
-        "surface-container": "#ebeef4", 
-        "surface-container-highest": "#dfe3e8", 
-        "secondary": "#455f87", 
-        "on-tertiary": "#ffffff", 
-        "on-tertiary-fixed": "#2a1800", 
-        "tertiary-container": "#ca860d", 
-        "on-secondary-fixed-variant": "#2d486d", 
-        "error": "#ba1a1a", 
-        "secondary-fixed": "#d5e3ff", 
-        "primary": "#006493", 
-        "on-primary-container": "#003049", 
-        "surface-container-lowest": "#ffffff", 
-        "tertiary-fixed": "#ffddb5", 
-        "surface-variant": "#dfe3e8", 
-        "on-secondary-fixed": "#001c3b", 
-        "surface-dim": "#d7dae0", 
-        "tertiary-fixed-dim": "#ffb955", 
-        "on-error-container": "#93000a", 
-        "secondary-container": "#b5d0fd", 
-        "on-primary-fixed": "#001e2f", 
-        "inverse-on-surface": "#eef1f6", 
-        "background": "#f6f9ff", 
-        "on-secondary": "#ffffff", 
-        "surface-container-high": "#e5e8ee", 
-        "on-primary-fixed-variant": "#004b70", 
-        "outline": "#6f7881", 
-        "error-container": "#ffdad6", 
-        "surface": "#f6f9ff", 
-        "secondary-fixed-dim": "#adc8f5", 
-        "on-tertiary-container": "#412800", 
-        "on-secondary-container": "#3e5980"
+        // Civic-trust Core
+        "primary": "#0A2647", 
+        "primary-container": "#144272", 
+        "on-primary": "#ffffff",
+        "on-primary-container": "#e0f2fe",
+        
+        "secondary": "#205295",
+        "secondary-container": "#2C74B3",
+        "on-secondary": "#ffffff",
+        "on-secondary-container": "#e0f2fe",
+
+        "accent": "#F4A261",
+        "accent-container": "#E76F51",
+        
+        // Severities
+        "severity-low": "#2A9D8F",
+        "severity-low-container": "#E8F5E9",
+        "severity-medium": "#F4A261",
+        "severity-medium-container": "#FFF3E0",
+        "severity-critical": "#E76F51",
+        "severity-critical-container": "#FFEBEE",
+        "severity-resolved": "#264653",
+
+        // Backgrounds & Surfaces
+        "background": "#F8FAFC", 
+        "on-background": "#0F172A", 
+        "surface": "#ffffff", 
+        "on-surface": "#1E293B", 
+        "surface-variant": "#F1F5F9", 
+        "on-surface-variant": "#475569", 
+        "outline": "#94A3B8", 
+        "outline-variant": "#CBD5E1", 
+        
+        // Retained for fallback
+        "error": "#E76F51", 
+        "error-container": "#FFEBEE", 
+        "on-error": "#ffffff",
+        "on-error-container": "#93000a",
       }, 
       borderRadius: {
         DEFAULT: "0.25rem", 
@@ -100,6 +91,21 @@ export default {
         "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}], 
         "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}], 
         "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+      },
+      keyframes: {
+        pulseRing: {
+          '0%': { transform: 'scale(1)', opacity: '1', boxShadow: '0 0 0 0 rgba(42, 157, 143, 0.4)' },
+          '70%': { transform: 'scale(1.05)', opacity: '0.8', boxShadow: '0 0 0 10px rgba(42, 157, 143, 0)' },
+          '100%': { transform: 'scale(1)', opacity: '1', boxShadow: '0 0 0 0 rgba(42, 157, 143, 0)' }
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' }
+        }
+      },
+      animation: {
+        'pulse-ring': 'pulseRing 0.6s cubic-bezier(0.25, 1, 0.5, 1)',
+        'float': 'float 4s ease-in-out infinite'
       }
     }
   },

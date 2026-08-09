@@ -104,17 +104,17 @@ export const SLA_CONFIGS = [
 
 // ── Users ──
 export const USERS = [
-  { id: 'user-1', name: 'Aarav Mehta', email: 'aarav@email.com', role: 'citizen', locality_id: 'kothrud', avatar: 'AM', impact_score: 450 },
-  { id: 'user-2', name: 'Diya Nair', email: 'diya@email.com', role: 'citizen', locality_id: 'karvenagar', avatar: 'DN', impact_score: 320 },
-  { id: 'user-3', name: 'Kabir Joshi', email: 'kabir@email.com', role: 'citizen', locality_id: 'shivajinagar', avatar: 'KJ', impact_score: 280 },
-  { id: 'user-4', name: 'Ananya Reddy', email: 'ananya@email.com', role: 'citizen', locality_id: 'koregaonpark', avatar: 'AR', impact_score: 190 },
-  { id: 'user-5', name: 'Rohan Iyer', email: 'rohan@email.com', role: 'citizen', locality_id: 'viman_nagar', avatar: 'RI', impact_score: 1110 },
-  { id: 'user-6', name: 'Meera Gupta', email: 'meera@email.com', role: 'citizen', locality_id: 'baner', avatar: 'MG', impact_score: 150 },
-  { id: 'user-7', name: 'Priya Sharma', email: 'priya@email.com', role: 'citizen', locality_id: 'aundh', avatar: 'PS', impact_score: 560 },
-  { id: 'user-8', name: 'Vikram Singh', email: 'vikram@email.com', role: 'citizen', locality_id: 'deccan', avatar: 'VS', impact_score: 230 },
-  { id: 'user-mod-1', name: 'Arjun Menon', email: 'arjun@civicpulse.app', role: 'moderator', locality_id: 'kothrud', assigned_locality_id: 'kothrud', avatar: 'AM', impact_score: 0 },
-  { id: 'user-mod-2', name: 'Sneha Kulkarni', email: 'sneha@civicpulse.app', role: 'moderator', locality_id: 'karvenagar', assigned_locality_id: 'karvenagar', avatar: 'SK', impact_score: 0 },
-  { id: 'user-admin', name: 'Commissioner Singh', email: 'admin@civicpulse.app', role: 'super_admin', locality_id: null, assigned_locality_id: null, avatar: 'CS', impact_score: 0 },
+  { id: 'citizen-1', name: 'Aarav Mehta', email: 'citizen1@civicpulse.app', role: 'citizen', locality_id: 'kothrud', avatar: 'AM', impact_score: 450 },
+  { id: 'citizen-2', name: 'Neha Sharma', email: 'citizen2@civicpulse.app', role: 'citizen', locality_id: 'baner', avatar: 'NS', impact_score: 320 },
+  { id: 'citizen-3', name: 'Rahul Desai', email: 'citizen3@civicpulse.app', role: 'citizen', locality_id: 'viman_nagar', avatar: 'RD', impact_score: 150 },
+  { id: 'citizen-4', name: 'Priya Patel', email: 'citizen4@civicpulse.app', role: 'citizen', locality_id: 'kothrud', avatar: 'PP', impact_score: 50 },
+  { id: 'citizen-5', name: 'Amit Kumar', email: 'citizen5@civicpulse.app', role: 'citizen', locality_id: 'hadapsar', avatar: 'AK', impact_score: 800 },
+  { id: 'citizen-6', name: 'Sneha Reddy', email: 'citizen6@civicpulse.app', role: 'citizen', locality_id: 'baner', avatar: 'SR', impact_score: 210 },
+  { id: 'citizen-7', name: 'Vikram Singh', email: 'citizen7@civicpulse.app', role: 'citizen', locality_id: 'viman_nagar', avatar: 'VS', impact_score: 600 },
+  { id: 'citizen-8', name: 'Ananya Joshi', email: 'citizen8@civicpulse.app', role: 'citizen', locality_id: 'kothrud', avatar: 'AJ', impact_score: 95 },
+  { id: 'citizen-9', name: 'Rohan Gupta', email: 'citizen9@civicpulse.app', role: 'citizen', locality_id: 'hadapsar', avatar: 'RG', impact_score: 410 },
+  { id: 'citizen-10', name: 'Meera Iyer', email: 'citizen10@civicpulse.app', role: 'citizen', locality_id: 'baner', avatar: 'MI', impact_score: 280 },
+  { id: 'user-admin-demo', name: 'Commissioner Singh', email: 'admin@civicpulse.app', role: 'super_admin', locality_id: null, assigned_locality_id: null, avatar: 'CS', impact_score: 0 },
 ];
 
 // ── Gamification ──
@@ -151,7 +151,7 @@ const PROBLEM_IMAGES = {
 export const SEED_PROBLEMS = [
   {
     id: 'prob-1',
-    user_id: 'user-1',
+    user_id: 'citizen-1',
     title: 'Large pothole near Paud Road signal',
     description: 'A dangerous 2-foot deep pothole has formed right at the Paud Road signal junction. Multiple two-wheelers have skidded here in the past week. The pothole fills with water during rain making it invisible to drivers.',
     category: 'pothole',
@@ -168,7 +168,7 @@ export const SEED_PROBLEMS = [
   },
   {
     id: 'prob-2',
-    user_id: 'user-2',
+    user_id: 'citizen-2',
     title: 'Garbage pile-up near Karvenagar bus stop',
     description: 'The garbage collection has not happened for 4 days straight. The pile is attracting stray dogs and the smell is unbearable for nearby residents and shop owners.',
     category: 'garbage',
@@ -185,7 +185,7 @@ export const SEED_PROBLEMS = [
   },
   {
     id: 'prob-3',
-    user_id: 'user-3',
+    user_id: 'citizen-3',
     title: 'Water main leak flooding FC Road',
     description: 'A major water pipeline has burst near Ferguson College causing water to flood the footpath and road. Pedestrians are forced to walk on the road creating a safety hazard.',
     category: 'water_leakage',
@@ -202,7 +202,7 @@ export const SEED_PROBLEMS = [
   },
   {
     id: 'prob-4',
-    user_id: 'user-4',
+    user_id: 'citizen-4',
     title: 'Broken streetlights on Lane 6',
     description: 'Three consecutive streetlights on Lane 6 have been non-functional for over 2 weeks. The area becomes extremely dark after 7 PM creating safety concerns, especially for women and elderly residents.',
     category: 'streetlight',
@@ -219,7 +219,7 @@ export const SEED_PROBLEMS = [
   },
   {
     id: 'prob-5',
-    user_id: 'user-5',
+    user_id: 'citizen-5',
     title: 'Open manhole near Phoenix Mall',
     description: 'A manhole cover is missing near the Phoenix Mall entrance road. This is extremely dangerous especially at night. Someone has placed a few stones around it but it is not properly barricaded.',
     category: 'safety',
@@ -236,7 +236,7 @@ export const SEED_PROBLEMS = [
   },
   {
     id: 'prob-6',
-    user_id: 'user-6',
+    user_id: 'citizen-6',
     title: 'Drainage overflow in Baner Gaothan',
     description: 'The drainage system near the old village area is completely blocked causing sewage overflow on the main road. The stench is terrible and it is a health hazard for the entire neighborhood.',
     category: 'drainage',
@@ -253,7 +253,7 @@ export const SEED_PROBLEMS = [
   },
   {
     id: 'prob-7',
-    user_id: 'user-7',
+    user_id: 'citizen-7',
     title: 'Stray dog pack near Aundh IT Park',
     description: 'A pack of 8-10 stray dogs has become very aggressive near the IT Park gate. They chase pedestrians and cyclists, especially in the evening hours. Multiple bite incidents reported.',
     category: 'stray_animals',
@@ -270,7 +270,7 @@ export const SEED_PROBLEMS = [
   },
   {
     id: 'prob-8',
-    user_id: 'user-8',
+    user_id: 'citizen-8',
     title: 'Frequent power cuts in Deccan area',
     description: 'The Deccan area has been experiencing 3-4 hour power cuts daily for the past week. No prior notice is given by MSEDCL. This is disrupting work-from-home professionals and small businesses.',
     category: 'electricity',
@@ -287,7 +287,7 @@ export const SEED_PROBLEMS = [
   },
   {
     id: 'prob-9',
-    user_id: 'user-1',
+    user_id: 'citizen-1',
     title: 'Garbage dumped in Kothrud park',
     description: 'Someone has been illegally dumping construction debris and household waste inside the community park. The children\'s play area is affected. This has been happening for over a week.',
     category: 'garbage',
@@ -304,7 +304,7 @@ export const SEED_PROBLEMS = [
   },
   {
     id: 'prob-10',
-    user_id: 'user-5',
+    user_id: 'citizen-5',
     title: 'Water contamination in Viman Nagar',
     description: 'The tap water in Sector 3 has turned yellowish-brown and has a foul smell. Multiple families are falling sick. We suspect sewage mixing with the water supply line.',
     category: 'water_leakage',
@@ -321,7 +321,7 @@ export const SEED_PROBLEMS = [
   },
   {
     id: 'prob-11',
-    user_id: 'user-3',
+    user_id: 'citizen-3',
     title: 'Pothole cluster on JM Road',
     description: 'A series of 5-6 potholes have formed on JM Road between Goodluck Chowk and PMC office. The road surface has completely deteriorated after recent rains.',
     category: 'pothole',
@@ -338,7 +338,7 @@ export const SEED_PROBLEMS = [
   },
   {
     id: 'prob-12',
-    user_id: 'user-2',
+    user_id: 'citizen-2',
     title: 'Broken footpath tiles near school',
     description: 'The footpath tiles near Karvenagar Primary School are broken and uneven. Children have been tripping and falling. A girl fractured her wrist last week because of this.',
     category: 'safety',
@@ -357,45 +357,45 @@ export const SEED_PROBLEMS = [
 
 // ── Pre-seed support data (who supports which problems) ──
 export const SEED_SUPPORT = [
-  { problem_id: 'prob-1', user_id: 'user-1' },
-  { problem_id: 'prob-1', user_id: 'user-2' },
-  { problem_id: 'prob-1', user_id: 'user-3' },
-  { problem_id: 'prob-2', user_id: 'user-2' },
-  { problem_id: 'prob-2', user_id: 'user-4' },
-  { problem_id: 'prob-3', user_id: 'user-1' },
-  { problem_id: 'prob-3', user_id: 'user-3' },
-  { problem_id: 'prob-3', user_id: 'user-5' },
-  { problem_id: 'prob-3', user_id: 'user-7' },
-  { problem_id: 'prob-5', user_id: 'user-5' },
-  { problem_id: 'prob-5', user_id: 'user-1' },
-  { problem_id: 'prob-8', user_id: 'user-8' },
-  { problem_id: 'prob-8', user_id: 'user-3' },
-  { problem_id: 'prob-8', user_id: 'user-5' },
+  { problem_id: 'prob-1', user_id: 'citizen-1' },
+  { problem_id: 'prob-1', user_id: 'citizen-2' },
+  { problem_id: 'prob-1', user_id: 'citizen-3' },
+  { problem_id: 'prob-2', user_id: 'citizen-2' },
+  { problem_id: 'prob-2', user_id: 'citizen-4' },
+  { problem_id: 'prob-3', user_id: 'citizen-1' },
+  { problem_id: 'prob-3', user_id: 'citizen-3' },
+  { problem_id: 'prob-3', user_id: 'citizen-5' },
+  { problem_id: 'prob-3', user_id: 'citizen-7' },
+  { problem_id: 'prob-5', user_id: 'citizen-5' },
+  { problem_id: 'prob-5', user_id: 'citizen-1' },
+  { problem_id: 'prob-8', user_id: 'citizen-8' },
+  { problem_id: 'prob-8', user_id: 'citizen-3' },
+  { problem_id: 'prob-8', user_id: 'citizen-5' },
 ];
 
 // ── Seed comments ──
 export const SEED_COMMENTS = [
-  { id: 'cmt-1', problem_id: 'prob-1', user_id: 'user-2', text: 'I also nearly fell here yesterday. This is getting dangerous!', created_at: daysAgo(2) },
-  { id: 'cmt-2', problem_id: 'prob-1', user_id: 'user-3', text: 'The pothole has gotten bigger after last night\'s rain.', created_at: daysAgo(1) },
-  { id: 'cmt-3', problem_id: 'prob-3', user_id: 'user-1', text: 'The water has been running for 3 days now. Complete waste!', created_at: daysAgo(4) },
-  { id: 'cmt-4', problem_id: 'prob-3', user_id: 'user-7', text: 'PMC was called but no one showed up. Typical.', created_at: daysAgo(3) },
-  { id: 'cmt-5', problem_id: 'prob-5', user_id: 'user-1', text: 'I put a branch near it as a warning but someone moved it. Very dangerous at night.', created_at: hoursAgo(12) },
-  { id: 'cmt-6', problem_id: 'prob-8', user_id: 'user-7', text: 'This is affecting my freelance work badly. Need stable power!', created_at: daysAgo(5) },
+  { id: 'cmt-1', problem_id: 'prob-1', user_id: 'citizen-2', text: 'I also nearly fell here yesterday. This is getting dangerous!', created_at: daysAgo(2) },
+  { id: 'cmt-2', problem_id: 'prob-1', user_id: 'citizen-3', text: 'The pothole has gotten bigger after last night\'s rain.', created_at: daysAgo(1) },
+  { id: 'cmt-3', problem_id: 'prob-3', user_id: 'citizen-1', text: 'The water has been running for 3 days now. Complete waste!', created_at: daysAgo(4) },
+  { id: 'cmt-4', problem_id: 'prob-3', user_id: 'citizen-7', text: 'PMC was called but no one showed up. Typical.', created_at: daysAgo(3) },
+  { id: 'cmt-5', problem_id: 'prob-5', user_id: 'citizen-1', text: 'I put a branch near it as a warning but someone moved it. Very dangerous at night.', created_at: hoursAgo(12) },
+  { id: 'cmt-6', problem_id: 'prob-8', user_id: 'citizen-7', text: 'This is affecting my freelance work badly. Need stable power!', created_at: daysAgo(5) },
 ];
 
 // ── Seed status history ──
 export const SEED_STATUS_HISTORY = [
-  { problem_id: 'prob-1', old_status: 'reported', new_status: 'verified', changed_by: 'user-mod-1', note: 'Verified by locality moderator. Confirmed dangerous.', created_at: daysAgo(2) },
-  { problem_id: 'prob-3', old_status: 'reported', new_status: 'verified', changed_by: 'user-mod-2', note: 'Major pipeline burst confirmed.', created_at: daysAgo(4) },
-  { problem_id: 'prob-3', old_status: 'verified', new_status: 'escalated', changed_by: 'user-admin', note: 'Escalated to Water Supply Department. High priority.', created_at: daysAgo(3) },
-  { problem_id: 'prob-4', old_status: 'reported', new_status: 'verified', changed_by: 'user-admin', note: 'Verified. 3 lights confirmed non-functional.', created_at: daysAgo(10) },
-  { problem_id: 'prob-4', old_status: 'verified', new_status: 'escalated', changed_by: 'user-admin', note: 'Sent to Street Lighting Division.', created_at: daysAgo(8) },
-  { problem_id: 'prob-4', old_status: 'escalated', new_status: 'in_progress', changed_by: 'user-admin', note: 'Department acknowledged. Repair crew scheduled.', created_at: daysAgo(2) },
-  { problem_id: 'prob-8', old_status: 'reported', new_status: 'verified', changed_by: 'user-admin', note: 'Confirmed widespread power cuts.', created_at: daysAgo(5) },
-  { problem_id: 'prob-8', old_status: 'verified', new_status: 'escalated', changed_by: 'user-admin', note: 'Escalated to MSEDCL. 56 supports — high public concern.', created_at: daysAgo(3) },
-  { problem_id: 'prob-12', old_status: 'reported', new_status: 'verified', changed_by: 'user-mod-2', note: 'Child injury confirmed. Urgent repair needed.', created_at: daysAgo(18) },
-  { problem_id: 'prob-12', old_status: 'verified', new_status: 'in_progress', changed_by: 'user-admin', note: 'Repair crew dispatched.', created_at: daysAgo(10) },
-  { problem_id: 'prob-12', old_status: 'in_progress', new_status: 'resolved', changed_by: 'user-admin', note: 'Footpath tiles replaced. Verified by moderator.', created_at: daysAgo(3) },
+  { problem_id: 'prob-1', old_status: 'reported', new_status: 'verified', changed_by: 'user-admin-demo', note: 'Verified by locality moderator. Confirmed dangerous.', created_at: daysAgo(2) },
+  { problem_id: 'prob-3', old_status: 'reported', new_status: 'verified', changed_by: 'user-admin-demo', note: 'Major pipeline burst confirmed.', created_at: daysAgo(4) },
+  { problem_id: 'prob-3', old_status: 'verified', new_status: 'escalated', changed_by: 'user-admin-demo', note: 'Escalated to Water Supply Department. High priority.', created_at: daysAgo(3) },
+  { problem_id: 'prob-4', old_status: 'reported', new_status: 'verified', changed_by: 'user-admin-demo', note: 'Verified. 3 lights confirmed non-functional.', created_at: daysAgo(10) },
+  { problem_id: 'prob-4', old_status: 'verified', new_status: 'escalated', changed_by: 'user-admin-demo', note: 'Sent to Street Lighting Division.', created_at: daysAgo(8) },
+  { problem_id: 'prob-4', old_status: 'escalated', new_status: 'in_progress', changed_by: 'user-admin-demo', note: 'Department acknowledged. Repair crew scheduled.', created_at: daysAgo(2) },
+  { problem_id: 'prob-8', old_status: 'reported', new_status: 'verified', changed_by: 'user-admin-demo', note: 'Confirmed widespread power cuts.', created_at: daysAgo(5) },
+  { problem_id: 'prob-8', old_status: 'verified', new_status: 'escalated', changed_by: 'user-admin-demo', note: 'Escalated to MSEDCL. 56 supports — high public concern.', created_at: daysAgo(3) },
+  { problem_id: 'prob-12', old_status: 'reported', new_status: 'verified', changed_by: 'user-admin-demo', note: 'Child injury confirmed. Urgent repair needed.', created_at: daysAgo(18) },
+  { problem_id: 'prob-12', old_status: 'verified', new_status: 'in_progress', changed_by: 'user-admin-demo', note: 'Repair crew dispatched.', created_at: daysAgo(10) },
+  { problem_id: 'prob-12', old_status: 'in_progress', new_status: 'resolved', changed_by: 'user-admin-demo', note: 'Footpath tiles replaced. Verified by moderator.', created_at: daysAgo(3) },
 ];
 
 // ── Trend data for charts ──

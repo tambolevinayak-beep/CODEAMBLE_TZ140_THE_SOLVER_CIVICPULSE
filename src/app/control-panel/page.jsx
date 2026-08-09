@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function AdminAnalyticsOverview() {
   const [metrics, setMetrics] = useState({
@@ -18,14 +19,14 @@ export default function AdminAnalyticsOverview() {
           .from('problems')
           .select('*');
 
-        if (error) throw error;
+        const activeProblems = error || !problems ? [] : problems;
         
         let openCount = 0;
         let resolvedCount = 0;
         let highPri = [];
         let totalSupport = 0;
 
-        problems.forEach(p => {
+        activeProblems.forEach(p => {
           if (p.status === 'resolved') {
             resolvedCount++;
           } else {
@@ -42,7 +43,7 @@ export default function AdminAnalyticsOverview() {
           .from('users')
           .select('*', { count: 'exact', head: true });
         
-        const engagement = userCount ? userCount * 3 : totalSupport + 124; // Some metric
+        const engagement = (!userError && userCount) ? userCount * 3 : totalSupport + 124; // Some metric
 
         setMetrics({
           totalOpen: openCount,
@@ -120,47 +121,32 @@ export default function AdminAnalyticsOverview() {
 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
 <div className="glass-card rounded-xl p-6 lg:col-span-2 flex flex-col h-[400px]">
-<div className="flex justify-between items-center mb-6">
-<h3 className="font-headline-sm text-headline-sm text-on-surface">Issues by Category</h3>
-<button className="text-primary hover:bg-surface-container p-2 rounded-full transition-colors">
-<span className="material-symbols-outlined">more_vert</span>
-</button>
-</div>
-<div className="flex-1 flex items-end justify-between gap-2 px-2 pb-6 border-b border-outline-variant relative">
-
-<div className="absolute left-0 top-0 h-full flex flex-col justify-between text-on-surface-variant font-label-md text-xs -ml-2">
-<span>100</span>
-<span>75</span>
-<span>50</span>
-<span>25</span>
-<span>0</span>
-</div>
-<div className="w-full h-full flex items-end justify-around pl-8">
-
-<div className="w-12 bg-primary/20 hover:bg-primary/40 rounded-t-sm h-[80%] transition-all relative group cursor-pointer">
-<div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-on-surface text-surface px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">80%</div>
-</div>
-<div className="w-12 bg-primary/40 hover:bg-primary/60 rounded-t-sm h-[45%] transition-all relative group cursor-pointer">
-<div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-on-surface text-surface px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">45%</div>
-</div>
-<div className="w-12 bg-primary/80 hover:bg-primary rounded-t-sm h-[95%] transition-all relative group cursor-pointer">
-<div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-on-surface text-surface px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">95%</div>
-</div>
-<div className="w-12 bg-tertiary-container/80 hover:bg-tertiary-container rounded-t-sm h-[60%] transition-all relative group cursor-pointer">
-<div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-on-surface text-surface px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">60%</div>
-</div>
-<div className="w-12 bg-primary/30 hover:bg-primary/50 rounded-t-sm h-[30%] transition-all relative group cursor-pointer">
-<div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-on-surface text-surface px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">30%</div>
-</div>
-</div>
-</div>
-<div className="flex justify-around pl-8 pt-4 font-label-md text-on-surface-variant text-xs">
-<span>Potholes</span>
-<span>Water</span>
-<span>Power</span>
-<span>Sanitation</span>
-<span>Other</span>
-</div>
+  <div className="flex justify-between items-center mb-6">
+    <h3 className="font-headline-sm text-headline-sm text-on-surface">Issues by Category</h3>
+    <button className="text-primary hover:bg-surface-container p-2 rounded-full transition-colors border-none cursor-pointer bg-transparent">
+      <span className="material-symbols-outlined">more_vert</span>
+    </button>
+  </div>
+  <div className="flex-1 w-full h-full min-h-0">
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart
+        data={[
+          { name: 'Potholes', count: 80 },
+          { name: 'Water', count: 45 },
+          { name: 'Power', count: 95 },
+          { name: 'Sanitation', count: 60 },
+          { name: 'Other', count: 30 },
+        ]}
+        margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+      >
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.2)" vertical={false} />
+        <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--color-on-surface-variant)' }} axisLine={false} tickLine={false} />
+        <YAxis tick={{ fontSize: 12, fill: 'var(--color-on-surface-variant)' }} axisLine={false} tickLine={false} />
+        <Tooltip cursor={{ fill: 'rgba(128,128,128,0.1)' }} contentStyle={{ borderRadius: '8px', border: '1px solid var(--color-outline-variant)', backgroundColor: 'var(--color-surface)' }} />
+        <Bar dataKey="count" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
 </div>
 
 <div className="glass-card rounded-xl p-6 flex flex-col h-[400px]">

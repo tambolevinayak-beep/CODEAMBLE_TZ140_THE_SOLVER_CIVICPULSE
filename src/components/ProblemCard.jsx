@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation';
 import { MapPin, MessageCircle, Share2, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import SupportButton from './SupportButton';
 import StatusStepper from './StatusStepper';
-import { CATEGORIES, STATUSES } from '@/data/mockData';
-import { getUserById, hasUserSupported, toggleSupport } from '@/data/store';
+import { toggleSupport as apiToggleSupport, hasUserSupported as apiHasUserSupported } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -32,17 +31,31 @@ export default function ProblemCard({ problem, onUpdate }) {
     }
   }, []);
 
-  const reporter = getUserById(problem.user_id);
-  const category = CATEGORIES.find(c => c.id === problem.category);
-  const statusMeta = STATUSES.find(s => s.id === problem.status);
-  const isSupported = hasUserSupported(problem.id, user?.id || 'user-1');
-  const isOwnPost = problem.user_id === (user?.id || 'user-1');
+  // Derive reporter from joined data or problem fields
+  const reporter = problem.users || { name: problem.user_name || 'Anonymous' };
+  const statusMeta = { id: problem.status, label: problem.status?.replace('_', ' ') || 'Reported', color: 'var(--primary)' };
+  const isOwnPost = problem.user_id === (user?.id || 'user-citizen-demo');
   const locality = problem.locality_id;
   const mediaUrls = problem.media_urls || [];
+  const [isSupported, setIsSupported] = useState(false);
 
-  function handleSupport() {
-    toggleSupport(problem.id);
-    onUpdate?.();
+  useEffect(() => {
+    async function checkSupport() {
+      if (user?.id) {
+        const supported = await apiHasUserSupported(problem.id, user.id);
+        setIsSupported(supported);
+      }
+    }
+    checkSupport();
+  }, [problem.id, user?.id]);
+
+  async function handleSupport() {
+    if (!user?.id) return;
+    const result = await apiToggleSupport(problem.id, user.id);
+    if (!result.error) {
+      setIsSupported(result.supported);
+      onUpdate?.();
+    }
   }
 
   function handleShare(e) {
@@ -83,7 +96,7 @@ export default function ProblemCard({ problem, onUpdate }) {
       {/* ── Media ── */}
       <div
         className="problem-card-media"
-        onClick={() => navigate.push(`/problem/${problem.id}`)}
+        onClick={() => navigate.push(`/citizen/issue/${problem.id}`)}
         style={{ cursor: 'pointer' }}
       >
         {mediaUrls.length > 0 ? (

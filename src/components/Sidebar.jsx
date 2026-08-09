@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 import {
   LayoutDashboard, AlertCircle, Building2, Timer, BarChart3,
@@ -21,6 +22,8 @@ const ADMIN_LINKS = [
 ];
 
 export default function Sidebar() {
+  const pathname = usePathname();
+
   return (
     <aside className="sidebar">
       {ADMIN_LINKS.map(section => (
@@ -30,7 +33,7 @@ export default function Sidebar() {
             <Link
               key={link.to}
               href={link.to}
-              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+              className={`sidebar-link ${pathname === link.to || pathname.startsWith(link.to + '/') ? 'active' : ''}`}
             >
               <link.icon size={18} />
               {link.label}

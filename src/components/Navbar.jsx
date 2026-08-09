@@ -12,6 +12,7 @@ import { useAuth } from '@/lib/AuthContext';
  */
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
 
   let auth;
   try {
@@ -49,7 +50,7 @@ export default function Navbar() {
             <li key={link.to}>
               <Link
                 href={link.to}
-                className={({ isActive }) => isActive ? 'active' : ''}
+                className={pathname === link.to || pathname.startsWith(link.to + '/') ? 'active' : ''}
               >
                 {link.label}
               </Link>

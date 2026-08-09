@@ -4,14 +4,17 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "oxlint"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.12.0",
-    "@supabase/supabase-js": "^2.110.0",
+    "@ai-sdk/google": "^4.0.39",
+    "@ai-sdk/react": "^4.0.61",
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.112.2",
+    "ai": "^7.0.58",
     "animejs": "^4.5.0",
     "framer-motion": "^12.42.0",
     "leaflet": "^1.9.4",
@@ -20,6 +23,7 @@
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-leaflet": "^5.0.0",
+    "react-markdown": "^10.1.0",
     "recharts": "^3.9.0"
   },
   "devDependencies": {

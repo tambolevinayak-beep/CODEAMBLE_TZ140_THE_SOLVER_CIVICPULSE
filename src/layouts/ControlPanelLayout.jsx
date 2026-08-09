@@ -1,11 +1,11 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 
 import {
   Activity, LayoutDashboard, ClipboardList, Map, Building2, Users,
-  Settings, LogOut, Menu, ChevronLeft, ChevronRight, Shield
+  Settings, LogOut, Shield
 } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { getVisibleNavItems } from '@/lib/permissions';
@@ -15,151 +15,92 @@ const ICON_MAP = {
   LayoutDashboard, ClipboardList, Map, Building2, Users, Settings,
 };
 
-const SIDEBAR_KEY = 'civicpulse_cp_sidebar_collapsed';
-
-/**
- * ControlPanelLayout — Unified layout for both Super Admin and Moderator.
- * Same components, different data scope based on role + assignedLocalityId.
- * Linear/Notion-style: calm, information-dense, professional.
- */
 export default function ControlPanelLayout({ children }) {
-  const { user, role, assignedLocalityId, signOut, switchRole } = useAuth();
+  const { user, role, signOut, switchRole } = useAuth();
   const navigate = useRouter();
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(() => typeof window !== 'undefined' ? localStorage.getItem(SIDEBAR_KEY)  === 'true' : null);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
 
   const navItems = getVisibleNavItems(role);
 
-  function toggleSidebar() {
-    setCollapsed(prev => {
-      const next = !prev;
-      (typeof window !== 'undefined' && localStorage.setItem(SIDEBAR_KEY, String(next)));
-      return next;
-    });
-  }
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [profileRef]);
 
   async function handleLogout() {
     await signOut();
     navigate.push('/auth');
   }
 
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [navigate]);
-
-  const userName = user?.name || user?.email?.split('@')[0] || 'User';
-  const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  const userName = user?.name || user?.email || 'User';
 
   return (
-    <div className="cp-layout">
-      <a href="#cp-main" className="skip-nav">Skip to content</a>
+    <div className="citizen-layout prism-bg relative">
+      
+      {/* Floating Pill Navbar */}
+      <div className="fixed top-6 left-0 right-0 z-50 flex justify-center pointer-events-none px-4">
+        <nav className="pointer-events-auto bg-[#1a1a1a] rounded-full p-2 flex items-center shadow-xl shadow-black/20 border border-white/5 max-w-full">
+          
+          {/* Left Icon */}
+          <Link href="/control-panel" className="w-[42px] h-[42px] bg-white rounded-full flex items-center justify-center shrink-0 hover:scale-105 transition-transform mr-4 sm:mr-6">
+            <Activity size={20} className="text-[#1a1a1a]" />
+          </Link>
 
-      {/* Mobile backdrop */}
-      {mobileOpen && <div className="sidebar-backdrop" onClick={() => setMobileOpen(false)} />}
-
-      {/* ── Sidebar ── */}
-      <aside
-        className={`cp-sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}
-        role="navigation"
-        aria-label="Control Panel navigation"
-      >
-        {/* Brand */}
-        <div className="sidebar-brand">
-          <div className="sidebar-brand-icon">
-            <Activity size={22} />
-          </div>
-          {!collapsed && <span className="sidebar-brand-text">CivicPulse</span>}
-          <button className="sidebar-toggle-btn" onClick={toggleSidebar}>
-            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-          </button>
-        </div>
-
-        {/* Role Badge */}
-        {!collapsed && (
-          <div className="cp-role-badge" data-role={role}>
-            <Shield size={12} />
-            <span>{getRoleLabel(role)}</span>
-            {role === 'moderator' && assignedLocalityId && (
-              <span className="cp-role-locality">• {assignedLocalityId}</span>
-            )}
-          </div>
-        )}
-
-        {/* Navigation */}
-        <nav className="sidebar-nav">
-          <div className="sidebar-nav-section">
-            {!collapsed && <div className="sidebar-section-label">Management</div>}
+          {/* Center Links */}
+          <div className="flex items-center gap-4 sm:gap-6 px-2 shrink-0">
             {navItems.map(item => {
-              const IconComponent = ICON_MAP[item.icon] || LayoutDashboard;
               const isActive = item.end ? pathname === item.path : pathname?.startsWith(item.path);
               return (
                 <Link
                   key={item.path}
                   href={item.path}
-                  className={`sidebar-nav-item ${isActive ? 'active' : ''} ${collapsed ? 'collapsed' : ''}`}
-                  onClick={() => setMobileOpen(false)}
-                  title={collapsed ? item.label : undefined}
+                  className={`text-[14px] font-medium transition-colors whitespace-nowrap ${isActive ? 'text-white' : 'text-gray-400 hover:text-gray-200'}`}
                 >
-                  <IconComponent size={18} className="sidebar-nav-icon" />
-                  {!collapsed && <span className="sidebar-nav-label">{item.label}</span>}
+                  {item.label}
                 </Link>
               );
             })}
           </div>
-        </nav>
 
-        {/* User card */}
-        <div className="sidebar-user-card">
-          <div className="sidebar-user-avatar">{userInitials}</div>
-          {!collapsed && (
-            <div className="sidebar-user-info">
-              <div className="sidebar-user-name">{userName}</div>
-              <div className="sidebar-user-role">{getRoleLabel(role)}</div>
-            </div>
-          )}
-        </div>
-      </aside>
-
-      {/* ── Main Content ── */}
-      <div className={`cp-main ${collapsed ? 'sidebar-collapsed' : ''}`}>
-        {/* Top bar */}
-        <header className="cp-topbar">
-          <div className="cp-topbar-left">
-            <button className="mobile-menu-btn" onClick={() => setMobileOpen(true)} aria-label="Open menu">
-              <Menu size={20} />
+          {/* Right User Pill */}
+          <div className="relative ml-4 sm:ml-6 shrink-0" ref={profileRef}>
+            <button 
+              onClick={() => setProfileOpen(!profileOpen)}
+              className="h-[42px] px-4 sm:px-5 bg-white rounded-full flex items-center gap-2 text-[14px] font-medium text-[#1a1a1a] hover:bg-gray-100 transition-colors"
+            >
+              <Shield size={16} className="text-error" />
+              {getRoleLabel(role)}
             </button>
-            {collapsed && (
-              <button className="btn btn-secondary btn-sm" onClick={toggleSidebar}
-                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px' }}>
-                <Menu size={16} />
-                <span style={{ fontSize: '12px', fontWeight: 600 }}>Menu</span>
-              </button>
+
+            {/* Profile Dropdown */}
+            {profileOpen && (
+              <div className="absolute top-full right-0 mt-3 w-48 bg-surface rounded-2xl shadow-xl border border-outline-variant overflow-hidden p-2 text-on-surface">
+                <div className="p-3 text-xs text-on-surface-variant font-medium border-b border-outline-variant mb-1 truncate">
+                  {userName}
+                </div>
+                
+                <div className="h-[1px] bg-outline-variant my-1" />
+                <button onClick={handleLogout} className="w-full flex items-center gap-3 p-3 hover:bg-error/10 hover:text-error rounded-lg text-sm transition-colors text-left">
+                  <LogOut size={16} /> Sign Out
+                </button>
+              </div>
             )}
           </div>
-          <div className="cp-topbar-right">
-            {/* Role switcher for demo */}
-            <select
-              className="cp-role-switcher"
-              value={role}
-              onChange={e => {
-                switchRole(e.target.value);
-                if (e.target.value === 'citizen') navigate.push('/');
-              }}
-              title="Switch role (demo)"
-            >
-              <option value="citizen">👤 Citizen</option>
-              <option value="moderator">🛡️ Moderator</option>
-              <option value="super_admin">⚙️ Super Admin</option>
-            </select>
-            <button className="btn btn-ghost btn-sm" onClick={handleLogout} title="Sign out">
-              <LogOut size={16} />
-              <span className="hide-mobile">Sign Out</span>
-            </button>
-          </div>
-        </header>
+        </nav>
+      </div>
 
-        <main id="cp-main" className="cp-page-content">
+      {/* Main Content Area - Full width, no sidebars */}
+      <div className="w-full min-h-screen pt-28">
+        <main id="cp-main" className="cp-page-content h-full">
           {children}
         </main>
       </div>

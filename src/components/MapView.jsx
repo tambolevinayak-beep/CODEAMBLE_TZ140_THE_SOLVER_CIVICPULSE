@@ -54,8 +54,20 @@ const createCustomIcon = (color, icon) => {
 function MapUpdater({ center, zoom }) {
   const map = useMap();
   useEffect(() => {
-    if (center && center[0] && center[1]) {
-      map.flyTo(center, zoom || map.getZoom(), { animate: true, duration: 1.2 });
+    if (center && center[0] && center[1] && map) {
+      // Small timeout ensures container is fully rendered before animation starts
+      const timeoutId = setTimeout(() => {
+        try {
+          if (map._loaded) {
+            map.flyTo(center, zoom || map.getZoom(), { animate: true, duration: 1.2 });
+          } else {
+            map.setView(center, zoom || map.getZoom());
+          }
+        } catch (e) {
+          console.warn('MapUpdater: flyTo skipped to prevent _leaflet_pos error.', e);
+        }
+      }, 50);
+      return () => clearTimeout(timeoutId);
     }
   }, [center, zoom, map]);
   return null;
@@ -234,9 +246,9 @@ export default function MapView({ issues = [], center = [18.5204, 73.8567], zoom
   const [showControls, setShowControls] = useState(false);
   
   // Customization state
-  const [mapShape, setMapShape] = useState(() => typeof window !== 'undefined' ? localStorage.getItem('civicpulse_map_shape')  || 'rectangle' : null); // rectangle | rounded | circle
-  const [mapSize, setMapSize] = useState(() => typeof window !== 'undefined' ? localStorage.getItem('civicpulse_map_size')  || 'full' : null); // small | medium | full
-  const [customHeight, setCustomHeight] = useState(() => parseInt(localStorage.getItem('civicpulse_map_height') || '600', 10));
+  const [mapShape, setMapShape] = useState(() => typeof window !== 'undefined' ? localStorage.getItem('civicpulse_map_shape')  || 'rectangle' : 'rectangle'); // rectangle | rounded | circle
+  const [mapSize, setMapSize] = useState(() => typeof window !== 'undefined' ? localStorage.getItem('civicpulse_map_size')  || 'full' : 'full'); // small | medium | full
+  const [customHeight, setCustomHeight] = useState(() => typeof window !== 'undefined' ? parseInt(localStorage.getItem('civicpulse_map_height') || '600', 10) : 600);
 
   useEffect(() => {
     if (center && center[0] && center[1]) {

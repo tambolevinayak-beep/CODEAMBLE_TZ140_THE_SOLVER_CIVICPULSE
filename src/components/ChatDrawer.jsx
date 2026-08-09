@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, ArrowLeft, Send, Check, CheckCheck, Shield } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
-import { getAllUsers } from '@/data/store';
+import { fetchAllUsers } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 
 // ── Real 1:1 user messages (persisted via Supabase or localStorage)
@@ -42,9 +42,15 @@ export default function ChatDrawer() {
   const [inputText, setInputText] = useState('');
   const [typing, setTyping] = useState(false);
   const messagesEndRef = useRef(null);
-  const currentUserId = user?.id || 'user-1';
+  const currentUserId = user?.id || 'user-citizen-demo';
 
-  const citizens = getAllUsers().filter(u => u.role === 'citizen' && u.id !== currentUserId);
+  const [users, setUsers] = useState([]);
+  
+  useEffect(() => {
+    fetchAllUsers().then(({ data }) => setUsers(data || []));
+  }, []);
+
+  const citizens = users.filter(u => u.role === 'citizen' && u.id !== currentUserId);
 
   useEffect(() => {
     try {

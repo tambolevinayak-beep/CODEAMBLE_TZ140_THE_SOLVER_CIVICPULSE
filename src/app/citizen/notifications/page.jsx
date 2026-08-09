@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Bell, Check, CheckCheck, MapPin, Clock } from 'lucide-react';
-import { getNotifications, markNotificationRead, markAllNotificationsRead, events } from '@/data/store';
+import { fetchNotifications, markNotificationRead, markAllNotificationsRead as markAllRead } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 
 function timeAgo(dateStr) {
@@ -33,35 +33,39 @@ export default function Notifications() {
   const { user } = useAuth();
   const navigate = useRouter();
   const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadNotifications();
-    const unsub1 = events.on('notificationCreated', loadNotifications);
-    const unsub2 = events.on('notificationsUpdated', loadNotifications);
-    return () => { unsub1(); unsub2(); };
-  }, []);
+  }, [user?.id]);
 
-  function loadNotifications() {
-    const userId = user?.id || 'user-1';
-    setNotifications(getNotifications(userId));
+  async function loadNotifications() {
+    setLoading(true);
+    const userId = user?.id || 'user-citizen-demo';
+    const { data } = await fetchNotifications(userId);
+    setNotifications(data || []);
+    setLoading(false);
   }
 
-  function handleMarkAllRead() {
-    markAllNotificationsRead(user?.id || 'user-1');
-    loadNotifications();
+  async function handleMarkAllRead() {
+    await markAllRead(user?.id || 'user-citizen-demo');
+    await loadNotifications();
   }
 
-  function handleClick(notif) {
-    if (!notif.is_read) {
-      markNotificationRead(notif.id);
+  async function handleClick(notif) {
+    if (!notif.read) {
+      await markNotificationRead(notif.id);
+      // Optimistically update
+      setNotifications(prev =>
+        prev.map(n => n.id === notif.id ? { ...n, read: true } : n)
+      );
     }
     if (notif.related_problem_id) {
-      navigate.push(`/problem/${notif.related_problem_id}`);
+      navigate.push(`/citizen/issue/${notif.related_problem_id}`);
     }
-    loadNotifications();
   }
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <div className="notifications-page">
@@ -80,11 +84,13 @@ export default function Notifications() {
       </div>
 
       <div className="notifications-list">
-        {notifications.length > 0 ? (
+        {loading ? (
+          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>Loading notifications...</div>
+        ) : notifications.length > 0 ? (
           notifications.map(notif => (
             <div
               key={notif.id}
-              className={`notification-item ${notif.is_read ? '' : 'unread'}`}
+              className={`notification-item ${notif.read ? '' : 'unread'}`}
               onClick={() => handleClick(notif)}
             >
               <div className="notification-icon">
@@ -96,7 +102,7 @@ export default function Notifications() {
                   <Clock size={10} /> {timeAgo(notif.created_at)}
                 </span>
               </div>
-              {!notif.is_read && <div className="notification-dot" />}
+              {!notif.read && <div className="notification-dot" />}
             </div>
           ))
         ) : (

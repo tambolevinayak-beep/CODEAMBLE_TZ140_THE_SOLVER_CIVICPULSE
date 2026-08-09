@@ -1,6 +1,5 @@
 'use client';
 import { Check, AlertTriangle, Clock, ArrowRight } from 'lucide-react';
-import { getUserById } from '@/data/store';
 
 function formatTime(dateStr) {
   const d = new Date(dateStr);
@@ -18,7 +17,7 @@ export default function StatusTimeline({ timeline = [] }) {
         const isLast = idx === timeline.length - 1;
         const isCompleted = !isLast;
         const isEscalated = step.status === 'escalated';
-        const user = step.actor !== 'system' ? getUserById(step.actor) : null;
+        const actorName = step.actor_name || (step.actor && step.actor !== 'system' ? step.actor : null);
 
         let dotClass = '';
         if (isEscalated) dotClass = 'escalated';
@@ -44,9 +43,9 @@ export default function StatusTimeline({ timeline = [] }) {
                   {step.note}
                 </div>
               )}
-              {user && (
+              {actorName && (
                 <div className="timeline-actor">
-                  By {user.name}
+                  By {actorName}
                 </div>
               )}
             </div>

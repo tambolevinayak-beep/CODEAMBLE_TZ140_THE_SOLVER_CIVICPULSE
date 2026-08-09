@@ -1,8 +1,10 @@
 'use client';
 import React, { useEffect, useState, use } from 'react';
+import { fetchIssueById, fetchComments, addComment, toggleSupport, hasUserSupported, updateIssueStatus, assignDepartment } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { useRealtimeIssues } from '@/hooks/useRealtimeIssues';
 import Link from 'next/link';
 
 export default function IssueDetailView({ params }) {
@@ -15,76 +17,95 @@ export default function IssueDetailView({ params }) {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newComment, setNewComment] = useState('');
-  const [submittingComment, setSubmittingComment] = useState(false);
+  const [isSupported, setIsSupported] = useState(false);
+  const [supportCount, setSupportCount] = useState(0);
+  const [departments, setDepartments] = useState([
+    { id: 'dept-1', name: 'Roads & Infrastructure' },
+    { id: 'dept-2', name: 'Water & Sanitation' },
+    { id: 'dept-3', name: 'Electricity & Power' }
+  ]);
+
+  useRealtimeIssues({
+    onUpdate: (updatedIssue) => {
+      if (updatedIssue.id === id) {
+        setIssue(prev => ({ ...prev, ...updatedIssue }));
+        setSupportCount(updatedIssue.support_count || 0);
+      }
+    }
+  });
 
   useEffect(() => {
-    async function fetchData() {
-      if (!supabase) {
+    async function loadData() {
+      const { data: issueData, error: issueError } = await fetchIssueById(id);
+      if (issueError || !issueData) {
         setLoading(false);
         return;
       }
-      try {
-        // Fetch Issue
-        const { data: issueData, error: issueError } = await supabase
-          .from('problems')
-          .select(`
-            *,
-            users ( name, avatar_url )
-          `)
-          .eq('id', id)
-          .single();
+      setIssue(issueData);
+      setSupportCount(issueData.support_count || 0);
 
-        if (issueError) throw issueError;
-        setIssue(issueData);
+      const { data: commentsData } = await fetchComments(id);
+      setComments(commentsData || []);
 
-        // Fetch Comments
-        const { data: commentsData, error: commentsError } = await supabase
-          .from('comments')
-          .select(`
-            *,
-            users ( name, avatar_url, role )
-          `)
-          .eq('problem_id', id)
-          .order('created_at', { ascending: true });
-
-        if (commentsError) throw commentsError;
-        setComments(commentsData || []);
-
-      } catch (err) {
-        console.error('Error fetching issue:', err);
-      } finally {
-        setLoading(false);
+      if (user?.id) {
+        const supported = await hasUserSupported(id, user.id);
+        setIsSupported(supported);
       }
+      
+      setLoading(false);
     }
-    fetchData();
-  }, [id]);
+    loadData();
+  }, [id, user]);
 
   const handleAddComment = async () => {
-    if (!newComment.trim() || !supabase) return;
+    if (!newComment.trim() || !user?.id) return;
     setSubmittingComment(true);
     try {
-      const { data, error } = await supabase
-        .from('comments')
-        .insert([{
-          problem_id: id,
-          user_id: user?.id,
-          text: newComment
-        }])
-        .select(`
-          *,
-          users ( name, avatar_url, role )
-        `)
-        .single();
-      
-      if (error) throw error;
-      setComments([...comments, data]);
+      await addComment(id, user.id, newComment.trim());
       setNewComment('');
+      // Reload comments
+      const { data: commentsData } = await fetchComments(id);
+      setComments(commentsData || []);
     } catch (err) {
       console.error('Error adding comment:', err);
     } finally {
       setSubmittingComment(false);
     }
   };
+
+  const handleSupport = async () => {
+    if (!user?.id) return;
+    try {
+      const success = await toggleSupport(id, user.id);
+      if (success) {
+        setIsSupported(!isSupported);
+        setSupportCount(prev => isSupported ? prev - 1 : prev + 1);
+      }
+    } catch (err) {
+      console.error('Error toggling support:', err);
+    }
+  };
+
+  const handleStatusUpdate = async (newStatus) => {
+    try {
+      await updateIssueStatus(id, newStatus);
+      // Real-time hook will handle the UI update
+    } catch (err) {
+      console.error('Error updating status:', err);
+    }
+  };
+
+  const handleAssignDept = async (deptId) => {
+    if (!deptId) return;
+    try {
+      await assignDepartment(id, deptId);
+      // Real-time hook will handle the UI update
+    } catch (err) {
+      console.error('Error assigning department:', err);
+    }
+  };
+
+  const role = user?.role;
 
   if (loading) {
     return <div className="p-xl text-center">Loading issue details...</div>;
@@ -95,7 +116,7 @@ export default function IssueDetailView({ params }) {
   }
 
   return (
-    <div className="stitch-page-content p-md md:p-lg xl:p-xl flex-1 max-w-[1280px] mx-auto w-full">
+    <div className="stitch-page-content p-md md:p-lg xl:p-xl flex-1 max-w-full mx-auto w-full">
       
       <div className="flex items-center gap-md mb-lg">
         <Link href="/citizen" className="text-on-surface-variant hover:bg-surface-container-low transition-colors p-sm rounded-full active:scale-95 duration-100 flex items-center justify-center">
@@ -151,13 +172,27 @@ export default function IssueDetailView({ params }) {
 
             <div className="flex items-center justify-between border-t border-outline-variant/30 pt-md mt-md">
               <div className="flex items-center gap-sm">
-                <span className="font-body-sm text-body-sm text-on-surface-variant">{issue.support_count || 0} citizens support this</span>
+                <span className="font-body-sm text-body-sm text-on-surface-variant">{supportCount} citizens support this</span>
               </div>
-              <button className="pulse-btn bg-primary-container text-on-primary hover:bg-primary-container/90 active:translate-y-[1px] transition-all font-label-md text-label-md px-lg py-sm rounded-lg flex items-center gap-xs shadow-sm">
+              <button 
+                onClick={handleSupport}
+                className={`pulse-btn transition-all font-label-md text-label-md px-lg py-sm rounded-lg flex items-center gap-xs shadow-sm ${isSupported ? 'bg-primary text-white hover:bg-primary/90' : 'bg-primary-container text-on-primary hover:bg-primary-container/90'} active:translate-y-[1px]`}
+              >
                 <span className="material-symbols-outlined text-[18px]">thumb_up</span>
-                Support This Issue
+                {isSupported ? 'Supported' : 'Support This Issue'}
               </button>
             </div>
+            
+            {(role === 'moderator' || role === 'super_admin') && (
+              <div className="flex items-center justify-end gap-sm border-t border-outline-variant/30 pt-md mt-md">
+                 <button onClick={() => handleStatusUpdate('resolved')} className="bg-primary text-white font-label-md text-label-md px-4 py-2 rounded-lg shadow-sm hover:bg-primary/90">
+                    Resolve
+                 </button>
+                 <button onClick={() => handleStatusUpdate('escalated')} className="bg-error text-white font-label-md text-label-md px-4 py-2 rounded-lg shadow-sm hover:bg-error/90">
+                    Escalate
+                 </button>
+              </div>
+            )}
           </div>
 
           <div className="glass-card rounded-xl p-lg">
@@ -216,6 +251,41 @@ export default function IssueDetailView({ params }) {
         </div>
 
         <div className="lg:col-span-4 flex flex-col gap-lg">
+          {(role === 'moderator' || role === 'super_admin') && (
+            <div className="glass-card rounded-xl p-lg bg-surface-container-low border border-primary/20">
+              <h2 className="font-headline-sm text-headline-sm text-on-surface mb-sm flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">assignment_ind</span>
+                Department Assignment
+              </h2>
+              <p className="font-body-sm text-xs text-on-surface-variant mb-md">Assign this issue to a specific municipal department for resolution.</p>
+              
+              <div className="mb-md">
+                {issue.assigned_department_id ? (
+                  <div className="flex items-center gap-2 bg-primary-container/20 text-on-primary-container px-3 py-2 rounded-lg text-sm border border-primary/30">
+                    <span className="material-symbols-outlined text-[16px]">domain_verification</span>
+                    Assigned to: <span className="font-semibold">{departments.find(d => d.id === issue.assigned_department_id)?.name || 'Unknown Dept'}</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 bg-surface-container-highest text-on-surface-variant px-3 py-2 rounded-lg text-sm">
+                    <span className="material-symbols-outlined text-[16px]">pending_actions</span>
+                    Not yet assigned
+                  </div>
+                )}
+              </div>
+
+              <select 
+                onChange={(e) => handleAssignDept(e.target.value)}
+                value={issue.assigned_department_id || ""}
+                className="w-full font-body-sm text-sm px-3 py-2 rounded-lg bg-white border border-outline-variant focus:outline-none focus:border-primary cursor-pointer text-on-surface-variant"
+              >
+                <option value="" disabled>Assign to Department...</option>
+                {departments.map(dept => (
+                  <option key={dept.id} value={dept.id}>{dept.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className="glass-card rounded-xl p-lg">
             <h2 className="font-headline-sm text-headline-sm text-on-surface mb-lg">Status Timeline</h2>
             <div className="relative pl-sm">

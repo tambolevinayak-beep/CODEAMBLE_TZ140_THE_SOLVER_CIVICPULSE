@@ -66,6 +66,7 @@ create table if not exists public.problems (
   support_count integer default 0,
   comment_count integer default 0,
   duplicate_of_id uuid references public.problems(id),
+  assigned_department_id uuid references public.departments(id),
   flag_count integer default 0,
   is_hidden boolean default false,
   created_at timestamptz default now(),

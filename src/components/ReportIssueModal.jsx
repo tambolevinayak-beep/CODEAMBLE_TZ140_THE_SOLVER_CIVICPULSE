@@ -1,7 +1,7 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { X, MapPin, Camera, Video, Upload, AlertCircle, Film, Image, CheckCircle, Trash2 } from 'lucide-react';
-import { createIssue, getAllLocalities } from '@/data/store';
+import { createIssue, fetchLocalities } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/AuthContext';
 
@@ -11,7 +11,13 @@ const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/webm'];
 
 export default function ReportIssueModal({ isOpen, onClose }) {
-  const localities = getAllLocalities();
+  const [localities, setLocalities] = useState([]);
+  
+  useEffect(() => {
+    if (isOpen) {
+      fetchLocalities().then(({ data }) => setLocalities(data || []));
+    }
+  }, [isOpen]);
   const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
@@ -124,24 +130,24 @@ export default function ReportIssueModal({ isOpen, onClose }) {
       }
     }
 
-    createIssue({
+    const result = await createIssue({
       title: formData.title,
       description: formData.description,
       category: formData.category || 'pothole',
       severity: formData.severity,
-      locality: formData.locality,
-      location: {
-        locality_name: localities.find(l => l.id === formData.locality)?.name || 'Pune',
-        city: 'Pune',
-        state: 'Maharashtra',
-        address: formData.address,
-        lat: parseFloat(formData.lat),
-        lng: parseFloat(formData.lng),
-      },
-      department: 'dept-pw',
-      evidence: finalMediaUrl ? [finalMediaUrl] : [],
+      locality_id: formData.locality || localities[0]?.id || 'kothrud',
+      location_address: formData.address,
+      lat: parseFloat(formData.lat) || 18.5204,
+      lng: parseFloat(formData.lng) || 73.8567,
+      user_id: user?.id || 'user-citizen-demo',
+      media_urls: finalMediaUrl ? [finalMediaUrl] : [],
       video_url: mediaType === 'video' && finalMediaUrl ? finalMediaUrl : null,
+      status: 'open'
     });
+
+    if (result.error) {
+      console.error('Failed to create issue:', result.error);
+    }
 
     setSubmitting(false);
     setStep(1);

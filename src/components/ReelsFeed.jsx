@@ -2,8 +2,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { ThumbsUp, MessageCircle, Share2, MapPin, Video, Play, Volume2, VolumeX, AlertTriangle, Send, X } from 'lucide-react';
-import { CATEGORIES } from '@/data/mockData';
-import { getUserById, voteIssue, addComment } from '@/data/store';
+import { toggleSupport, addComment } from '@/lib/api';
+import { useAuth } from '@/lib/AuthContext';
 
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -127,9 +127,12 @@ function ReelCommentPanel({ issue, onClose }) {
   const [, forceUpdate] = useState(0);
   const comments = issue?.comments || [];
 
-  function handleSend() {
+  const { user } = useAuth();
+
+  async function handleSend() {
     if (!commentText.trim() || !issue) return;
-    addComment(issue.id, commentText.trim());
+    const userId = user?.id || 'user-citizen-demo';
+    await addComment(issue.id, userId, commentText.trim());
     setCommentText('');
     forceUpdate(n => n + 1);
   }
@@ -151,7 +154,8 @@ function ReelCommentPanel({ issue, onClose }) {
           </p>
         )}
         {comments.map(comment => {
-          const u = getUserById(comment.user);
+          // comments might have user joined or just user_id
+          const u = comment.users || { name: comment.user_name || 'Anonymous' };
           return (
             <div key={comment.id} className="reel-comment-item">
               <div className="reel-comment-avatar">{u?.avatar || '??'}</div>
@@ -232,8 +236,8 @@ export default function ReelsFeed({ issues, onIssueClick }) {
       )}
 
       {issues.map((issue, idx) => {
-        const reporter = getUserById(issue.reporter);
-        const category = CATEGORIES.find(c => c.id === issue.category);
+        const reporter = issue.users || { name: issue.user_name || 'Anonymous' };
+        const category = { label: issue.category?.replace('_', ' ') || 'Other' };
         const gradient = REEL_GRADIENTS[idx % REEL_GRADIENTS.length];
         
         const videoUrl = issue.video_url || (issue.evidence && issue.evidence.find(url => typeof url === 'string' && (url.startsWith('data:video/') || url.includes('.mp4') || url.includes('.webm'))));
@@ -293,9 +297,14 @@ export default function ReelsFeed({ issues, onIssueClick }) {
             <div className="reel-sidebar">
               <button
                 className="reel-sidebar-btn"
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.stopPropagation();
-                  voteIssue(issue.id);
+                  if (user?.id) {
+                    const result = await toggleSupport(issue.id, user.id);
+                    if (!result.error && onVote) {
+                       onVote(issue.id);
+                    }
+                  }
                 }}
               >
                 <ThumbsUp size={24} />

@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Sparkles, MapPin, Check, ArrowRight, X, Heart, Navigation } from 'lucide-react';
-import { getAllLocalities, events } from '@/data/store';
+import { events } from '@/data/store';
+import { fetchLocalities } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -20,9 +21,19 @@ const COMMUTE_MODES = [
 ];
 
 export default function PersonalizationQuizModal({ isOpen, onClose, onComplete }) {
-  const localities = getAllLocalities();
+  const [localities, setLocalities] = useState([]);
   const { user } = useAuth();
   const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchLocalities().then(({ data }) => {
+        setLocalities(data || []);
+        setLoading(false);
+      });
+    }
+  }, [isOpen]);
   const [selectedLocality, setSelectedLocality] = useState('kothrud');
   const [selectedInterests, setSelectedInterests] = useState(['pothole', 'garbage']);
   const [commuteMode, setCommuteMode] = useState('two_wheeler');

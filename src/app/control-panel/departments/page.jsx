@@ -1,159 +1,79 @@
 'use client';
-import { useState } from 'react';
-import { getAllDepartments } from '@/data/store';
-import { CATEGORIES } from '@/data/mockData';
+import React, { useState } from 'react';
 
-export default function CPDepartments() {
-  const [departments, setDepartments] = useState(() => getAllDepartments());
-  const [showModal, setShowModal] = useState(false);
+export default function DepartmentsPage() {
+  const [departments, setDepartments] = useState([
+    { id: 'dept-1', name: 'Roads & Infrastructure', head: 'Rajesh Kumar', active_issues: 45 },
+    { id: 'dept-2', name: 'Water & Sanitation', head: 'Sneha Patel', active_issues: 32 },
+    { id: 'dept-3', name: 'Electricity & Power', head: 'Amit Singh', active_issues: 18 },
+  ]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [newDeptName, setNewDeptName] = useState('');
-  const [newCategory, setNewCategory] = useState('road_damage');
-  const [newEmail, setNewEmail] = useState('');
 
   const handleAddDept = (e) => {
     e.preventDefault();
-    if (!newDeptName.trim()) return;
-
-    const newDept = {
-      id: `dept-${Date.now()}`,
-      name: newDeptName,
-      category: newCategory,
-      contact_email: newEmail || 'official@civicpulse.gov',
-      webhook_url: `https://api.civicpulse.gov/v1/dept/${newCategory}`,
-    };
-
-    setDepartments((prev) => [...prev, newDept]);
+    if (!newDeptName) return;
+    setDepartments([...departments, { id: `dept-${Date.now()}`, name: newDeptName, head: 'Unassigned', active_issues: 0 }]);
     setNewDeptName('');
-    setNewEmail('');
-    setShowModal(false);
+    setIsModalOpen(false);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-[#dfe3e8] shadow-sm">
+    <div className="stitch-page-content p-md md:p-lg xl:p-xl flex-1 max-w-[1280px] mx-auto w-full">
+      <header className="flex justify-between items-end mb-8">
         <div>
-          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#006493]/10 text-[#006493] text-xs font-bold mb-1">
-            <span className="material-symbols-outlined text-[14px]">apartment</span>
-            Municipal Governance Routing
-          </div>
-          <h1 className="text-2xl font-bold text-[#181c20]">Department Directory</h1>
-          <p className="text-xs text-[#6f7881]">Configure municipal departments, SLA webhooks, and escalation routing rules.</p>
+          <h2 className="font-headline-lg text-headline-lg text-on-surface">Departments Management</h2>
+          <p className="font-body-md text-body-md text-on-surface-variant mt-1">Create and manage specific domains of work for the municipality.</p>
         </div>
-
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-[#006493] hover:bg-[#004b70] text-white px-4 py-2.5 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm transition-colors"
-        >
-          <span className="material-symbols-outlined text-[18px]">add_business</span>
-          Add Department
+        <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg shadow-sm hover:bg-surface-tint transition-all border-none cursor-pointer">
+          <span className="material-symbols-outlined text-[20px]">add</span>
+          New Department
         </button>
-      </div>
+      </header>
 
-      {/* Department Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {departments.map((dept) => {
-          const cat = CATEGORIES.find((c) => c.id === dept.category);
-          return (
-            <div key={dept.id} className="bg-white rounded-xl border border-[#dfe3e8] p-5 shadow-sm space-y-4 hover:shadow-md transition-shadow">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#2e9cdb]/10 text-[#006493] flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-2xl">building_surveys</span>
-                </div>
-                <div>
-                  <h3 className="font-bold text-base text-[#181c20]">{dept.name}</h3>
-                  <span className="text-[11px] font-bold text-[#006493] uppercase">
-                    {cat?.label || dept.category}
-                  </span>
-                </div>
+        {departments.map((dept) => (
+          <div key={dept.id} className="glass-card p-6 rounded-xl border border-surface-variant flex flex-col gap-4 group hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-start">
+              <div className="p-3 bg-primary-container/20 text-primary rounded-lg shrink-0">
+                <span className="material-symbols-outlined">domain</span>
               </div>
-
-              <div className="p-3 bg-[#f0f4f9] rounded-lg text-xs space-y-1.5 text-[#3f4850]">
-                <div className="flex items-center justify-between">
-                  <span className="text-[#6f7881]">Contact Email:</span>
-                  <span className="font-semibold text-[#181c20]">{dept.contact_email || 'dept@civicpulse.gov'}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[#6f7881]">Escalation Webhook:</span>
-                  <span className="font-semibold text-[#006493]">Configured</span>
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-[#dfe3e8] flex justify-end">
-                <button className="text-xs font-bold text-[#006493] hover:underline flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[14px]">edit</span> Edit Config
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Add Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-[#dfe3e8] pb-3">
-              <h3 className="font-bold text-base text-[#181c20]">Add Municipal Department</h3>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600">
-                <span className="material-symbols-outlined">close</span>
+              <button className="text-on-surface-variant hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity bg-transparent border-none cursor-pointer">
+                <span className="material-symbols-outlined">more_vert</span>
               </button>
             </div>
+            <div>
+              <h3 className="font-headline-sm text-headline-sm text-on-surface">{dept.name}</h3>
+              <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">Head: {dept.head}</p>
+            </div>
+            <div className="mt-auto pt-4 border-t border-outline-variant flex justify-between items-center">
+              <span className="font-label-md text-sm text-on-surface-variant">Active Issues</span>
+              <span className="font-metric-sm text-lg font-bold text-primary">{dept.active_issues}</span>
+            </div>
+          </div>
+        ))}
+      </div>
 
-            <form onSubmit={handleAddDept} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-[#181c20] mb-1">Department Name</label>
-                <input
-                  type="text"
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <div className="bg-surface p-6 rounded-xl w-full max-w-md shadow-lg border border-surface-variant">
+            <h3 className="font-headline-sm text-headline-sm mb-4">Add New Department</h3>
+            <form onSubmit={handleAddDept} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <label className="font-label-md text-on-surface">Department Name</label>
+                <input 
+                  type="text" 
                   value={newDeptName}
                   onChange={(e) => setNewDeptName(e.target.value)}
-                  placeholder="e.g. Municipal Water Board"
-                  required
-                  className="w-full bg-white border border-[#bec7d1] rounded-lg px-3 py-2 text-xs text-[#181c20] outline-none"
+                  className="px-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-md focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  placeholder="e.g., Parks & Recreation"
+                  autoFocus
                 />
               </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#181c20] mb-1">Category Routing</label>
-                <select
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
-                  className="w-full bg-white border border-[#bec7d1] rounded-lg px-3 py-2 text-xs text-[#181c20] outline-none"
-                >
-                  <option value="road_damage">Road Damage</option>
-                  <option value="garbage">Sanitation</option>
-                  <option value="water_leak">Water Supply</option>
-                  <option value="sewage">Sewage & Drainage</option>
-                  <option value="streetlight">Street Lighting</option>
-                  <option value="electrical">Electrical Hazard</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#181c20] mb-1">Contact Email</label>
-                <input
-                  type="email"
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  placeholder="contact@dept.gov"
-                  className="w-full bg-white border border-[#bec7d1] rounded-lg px-3 py-2 text-xs text-[#181c20] outline-none"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 bg-[#ebeef4] text-[#181c20] font-bold text-xs rounded-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-[#006493] text-white font-bold text-xs rounded-lg hover:bg-[#004b70] transition-colors"
-                >
-                  Add Department
-                </button>
+              <div className="flex justify-end gap-3 mt-4">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-on-surface-variant hover:text-on-surface bg-transparent border-none cursor-pointer">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-primary text-on-primary rounded-md shadow-sm border-none cursor-pointer">Create</button>
               </div>
             </form>
           </div>

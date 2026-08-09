@@ -4,7 +4,8 @@ import {
   Sparkles, MapPin, Check, ArrowRight, ArrowLeft, User, Phone,
   Briefcase, Navigation, Heart, X
 } from 'lucide-react';
-import { getAllLocalities, events } from '@/data/store';
+import { events } from '@/data/store';
+import { fetchLocalities } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -43,9 +44,19 @@ const QUIZ_PREFS_KEY = 'civicpulse_quiz_prefs';
  * for the AI recommendation engine.
  */
 export default function OnboardingSurvey({ isOpen, onClose, onComplete }) {
-  const localities = getAllLocalities();
+  const [localities, setLocalities] = useState([]);
   const { user } = useAuth();
   const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchLocalities().then(({ data }) => {
+        setLocalities(data || []);
+        setLoading(false);
+      });
+    }
+  }, [isOpen]);
   const [saving, setSaving] = useState(false);
 
   // Profile fields

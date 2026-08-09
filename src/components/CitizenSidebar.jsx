@@ -4,41 +4,35 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
 import {
-  User, AlertCircle, PlusCircle, Map as MapIcon, Trophy,
-  MessageCircle, FileText, ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
-  Activity, Video, BarChart3, Settings, Sparkles
+  User, FileText, PlusCircle, Map as MapIcon,
+  MessageCircle, ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
+  Activity, Video, Home
 } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 
 /**
- * Navigation items in the USER-REQUESTED order:
- * 1. Profile
- * 2. Issues (feed)
- * 3. Add Issue (report)
- * 4. Speed Map & Reels (grouped)
- * 5. Leaderboard
+ * Citizen navigation in requested structure.
  */
 const CITIZEN_NAV = [
-  { to: '/intro', label: 'Intro Page', icon: Sparkles },
+  { to: '/citizen', label: 'Dashboard', icon: Home, end: true },
   { to: '/citizen/profile', label: 'Profile', icon: User },
-  { to: '/citizen', label: 'Dashboard', icon: BarChart3, end: true },
-  { to: '/citizen/feed', label: 'Feed', icon: AlertCircle },
-  { to: '/citizen/report', label: 'Add Issue', icon: PlusCircle },
+  { to: '/citizen/feed', label: 'Issues', icon: FileText },
+  { to: '/citizen/report', label: 'Add Issue', icon: PlusCircle, cta: true },
   {
     label: 'Explore',
     icon: MapIcon,
     isGroup: true,
     children: [
-      { to: '/citizen/map', label: 'Speed Map', icon: MapIcon },
+      { to: '/citizen/map', label: 'Map', icon: MapIcon },
       { to: '/citizen/reels', label: 'Reels', icon: Video },
     ],
   },
-  { to: '/citizen/leaderboard', label: 'Leaderboard', icon: Trophy },
 ];
 
 const CITIZEN_NAV_BOTTOM = [
+  { to: '/citizen/profile', label: 'Edit Profile', icon: User },
   { to: '/citizen/my-issues', label: 'My Issues', icon: FileText },
-  { to: '/citizen/community', label: 'Community', icon: MessageCircle },
+  { to: '/citizen/community', label: 'Community Issues', icon: MessageCircle },
 ];
 
 /**
@@ -101,9 +95,7 @@ export default function CitizenSidebar({ collapsed, onToggle, mobileOpen, onMobi
               <Link
                 key={child.to}
                 href={child.to}
-                className={({ isActive }) =>
-                  `sidebar-nav-item sidebar-nav-child ${isActive ? 'active' : ''} ${collapsed ? 'collapsed' : ''}`
-                }
+                className={`sidebar-nav-item sidebar-nav-child ${pathname === child.to || pathname.startsWith(child.to + '/') ? 'active' : ''} ${collapsed ? 'collapsed' : ''}`}
                 onClick={onMobileClose}
                 title={collapsed ? child.label : undefined}
               >
@@ -120,10 +112,7 @@ export default function CitizenSidebar({ collapsed, onToggle, mobileOpen, onMobi
       <Link
         key={link.to}
         href={link.to}
-        end={link.end}
-        className={({ isActive }) =>
-          `sidebar-nav-item ${isActive ? 'active' : ''} ${collapsed ? 'collapsed' : ''}`
-        }
+        className={`sidebar-nav-item ${(link.end ? pathname === link.to : (pathname === link.to || pathname.startsWith(link.to + '/'))) ? 'active' : ''} ${collapsed ? 'collapsed' : ''} ${link.cta ? 'sidebar-nav-cta' : ''}`}
         onClick={onMobileClose}
         title={collapsed ? link.label : undefined}
       >
@@ -171,9 +160,7 @@ export default function CitizenSidebar({ collapsed, onToggle, mobileOpen, onMobi
             {CITIZEN_NAV.map(link => renderNavItem(link))}
           </div>
 
-          <div className="sidebar-nav-divider" />
-
-          <div className="sidebar-nav-section">
+          <div className="sidebar-nav-section sidebar-account-section">
             {!collapsed && <div className="sidebar-section-label">Account</div>}
             {CITIZEN_NAV_BOTTOM.map(link => renderNavItem(link))}
           </div>

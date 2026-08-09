@@ -1,16 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/utils/supabase/client';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+export const supabase = createClient();
 
 // Allow the app to work even without Supabase credentials (demo mode)
-const isDemoMode = !supabaseUrl || supabaseUrl === 'https://your-project.supabase.co';
-
-export const supabase = isDemoMode
-  ? null
-  : createClient(supabaseUrl, supabaseAnonKey);
-
-export { isDemoMode };
+export const isDemoMode = !supabaseUrl || supabaseUrl === 'https://your-project.supabase.co';
 
 /**
  * Get role label for display.

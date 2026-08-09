@@ -1,167 +1,163 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { User, Award, Flame, Star, Settings, ChevronRight } from 'lucide-react';
-import { useAuth } from '@/lib/AuthContext';
-import { getUserById, getAllLocalities } from '@/data/store';
-import { BADGES_CATALOG, LEVELS } from '@/data/mockData';
-import PageTransition from '@/components/PageTransition';
 
-export default function Profile() {
-  const { user: authUser, role } = useAuth();
-  const [profile, setProfile] = useState(null);
-  const localities = getAllLocalities();
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/lib/AuthContext';
+import { fetchUserProfile, updateUserProfile } from '@/lib/api';
+
+export default function ProfilePage() {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    locality_id: '',
+    avatar_url: '',
+  });
 
   useEffect(() => {
-    // Merge auth context user with mock database user and provide safe defaults
-    const dbUser = getUserById(authUser?.id) || getUserById('user-1') || {};
-    const normalized = {
-      ...dbUser,
-      points: dbUser.points ?? dbUser.impact_score ?? 450,
-      badges: Array.isArray(dbUser.badges) ? dbUser.badges : ['first_report', 'supporter_10', 'resolved_5'],
-      streak: dbUser.streak ?? 7,
-      locality: dbUser.locality ?? dbUser.locality_id ?? 'kothrud',
-      avatar: dbUser.avatar || dbUser.name?.substring(0, 2)?.toUpperCase() || 'C',
-    };
-    setProfile(normalized);
-  }, [authUser]);
+    async function loadProfile() {
+      setLoading(true);
 
-  if (!profile) return <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>Loading profile...</div>;
+      const fallback = {
+        name: user?.name || '',
+        email: user?.email || '',
+        phone: '',
+        locality_id: user?.locality_id || 'kothrud',
+        avatar_url: user?.avatar_url || '',
+      };
 
-  const currentLevel = LEVELS.slice().reverse().find(l => profile.points >= (l.minScore ?? l.minPts ?? 0)) || LEVELS[0] || { level: 1, title: 'Observer', icon: '🌱', minScore: 0 };
-  const nextLevel = LEVELS.find(l => (l.minScore ?? l.minPts ?? 0) > profile.points);
-  
-  const curMin = currentLevel.minScore ?? currentLevel.minPts ?? 0;
-  const nextMin = nextLevel ? (nextLevel.minScore ?? nextLevel.minPts ?? 1000) : curMin + 500;
+      if (!user?.id) {
+        setForm(fallback);
+        setLoading(false);
+        return;
+      }
 
-  const progressPercent = nextLevel 
-    ? Math.min(Math.max(((profile.points - curMin) / (nextMin - curMin)) * 100, 0), 100)
-    : 100;
+      const { data } = await fetchUserProfile(user.id);
+      if (data) {
+        setForm({
+          name: data.name || fallback.name,
+          email: data.email || fallback.email,
+          phone: data.phone || '',
+          locality_id: data.locality_id || fallback.locality_id,
+          avatar_url: data.avatar_url || '',
+        });
+      } else {
+        setForm(fallback);
+      }
 
-  const userBadges = (BADGES_CATALOG || []).filter(b => profile.badges.includes(b.id));
-  const localityName = localities.find(l => l.id === profile.locality)?.name || profile.locality || 'Pune';
+      setLoading(false);
+    }
+
+    loadProfile();
+  }, [user?.id, user?.name, user?.email, user?.locality_id, user?.avatar_url]);
+
+  async function onSubmit(event) {
+    event.preventDefault();
+    setMessage('');
+
+    if (!user?.id) {
+      setMessage('No authenticated user found.');
+      return;
+    }
+
+    setSaving(true);
+
+    const { error } = await updateUserProfile(user.id, {
+      name: form.name.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim() || null,
+      locality_id: form.locality_id.trim() || null,
+      avatar_url: form.avatar_url.trim() || null,
+    });
+
+    if (error) {
+      setMessage(error.message || 'Unable to update profile.');
+      setSaving(false);
+      return;
+    }
+
+    setMessage('Profile updated successfully.');
+    setSaving(false);
+  }
+
+  if (loading) {
+    return <div className="p-6 text-slate-600">Loading profile...</div>;
+  }
 
   return (
-    <PageTransition>
-      <div style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: 'var(--space-2xl)' }}>
-      {/* Header Profile Card */}
-      <div className="card" style={{ 
-        marginBottom: 'var(--space-lg)', 
-        background: 'linear-gradient(135deg, var(--primary-bg), var(--bg-primary))',
-        border: '1px solid var(--primary-light)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-lg)', marginBottom: 'var(--space-lg)' }}>
-          <div style={{
-            width: 80, height: 80,
-            borderRadius: 'var(--radius-full)',
-            background: 'var(--primary)',
-            color: 'white',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '32px', fontWeight: 700,
-            boxShadow: '0 4px 12px rgba(8, 145, 178, 0.2)'
-          }}>
-            {profile.avatar}
-          </div>
-          <div style={{ flex: 1 }}>
-            <h1 style={{ fontSize: 'var(--text-xl)', marginBottom: '4px' }}>{profile.name}</h1>
-            <div style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span>{profile.email}</span> • <span>{localityName}</span>
-            </div>
-          </div>
-          <button className="btn btn-ghost btn-sm"><Settings size={18} /></button>
+    <div className="stitch-page-content p-md md:p-lg xl:p-xl max-w-full mx-auto w-full">
+      <section className="mb-6 rounded-2xl border border-white/60 bg-white/65 backdrop-blur-xl p-5 shadow-[0_20px_55px_rgba(20,30,55,0.08)]">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-700">Profile</p>
+        <h1 className="text-2xl font-bold text-slate-900">Account Details</h1>
+        <p className="text-sm text-slate-600">View and edit your account profile used for citizen reporting.</p>
+      </section>
+
+      <form onSubmit={onSubmit} className="rounded-2xl border border-white/60 bg-white/60 p-5 backdrop-blur-lg shadow-[0_18px_45px_rgba(20,30,55,0.1)] space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="text-sm text-slate-700">
+            Full Name
+            <input
+              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+              value={form.name}
+              onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+              required
+            />
+          </label>
+
+          <label className="text-sm text-slate-700">
+            Email
+            <input
+              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+              required
+            />
+          </label>
+
+          <label className="text-sm text-slate-700">
+            Phone
+            <input
+              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+              value={form.phone}
+              onChange={(e) => setForm((prev) => ({ ...prev, phone: e.target.value }))}
+              placeholder="Optional"
+            />
+          </label>
+
+          <label className="text-sm text-slate-700">
+            Locality ID
+            <input
+              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+              value={form.locality_id}
+              onChange={(e) => setForm((prev) => ({ ...prev, locality_id: e.target.value }))}
+            />
+          </label>
         </div>
 
-        {/* Gamification Stats */}
-        <div className="grid-3" style={{ gap: 'var(--space-md)' }}>
-          <div style={{ background: 'var(--bg-primary)', padding: 'var(--space-md)', borderRadius: 'var(--radius-md)', textAlign: 'center', border: '1px solid var(--border)' }}>
-            <div style={{ fontSize: 'var(--text-2xl)', marginBottom: '4px' }}>{currentLevel.icon || '🌱'}</div>
-            <div style={{ fontWeight: 700, fontSize: 'var(--text-lg)' }}>{currentLevel.title || currentLevel.name || 'Observer'}</div>
-            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>Current Level</div>
-          </div>
-          
-          <div style={{ background: 'var(--bg-primary)', padding: 'var(--space-md)', borderRadius: 'var(--radius-md)', textAlign: 'center', border: '1px solid var(--border)' }}>
-            <div style={{ color: 'var(--accent)', marginBottom: '4px' }}><Star size={24} style={{ margin: '0 auto' }} /></div>
-            <div style={{ fontWeight: 700, fontSize: 'var(--text-lg)' }}>{profile.points}</div>
-            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>Total Points</div>
-          </div>
+        <label className="block text-sm text-slate-700">
+          Avatar URL
+          <input
+            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+            value={form.avatar_url}
+            onChange={(e) => setForm((prev) => ({ ...prev, avatar_url: e.target.value }))}
+            placeholder="https://..."
+          />
+        </label>
 
-          <div style={{ background: 'var(--bg-primary)', padding: 'var(--space-md)', borderRadius: 'var(--radius-md)', textAlign: 'center', border: '1px solid var(--border)' }}>
-            <div style={{ color: 'var(--danger)', marginBottom: '4px' }}><Flame size={24} style={{ margin: '0 auto' }} /></div>
-            <div style={{ fontWeight: 700, fontSize: 'var(--text-lg)' }}>{profile.streak} Days</div>
-            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>Active Streak</div>
-          </div>
-        </div>
+        {message && <p className="text-sm text-slate-700">{message}</p>}
 
-        {/* Progress to next level */}
-        {nextLevel && (
-          <div style={{ marginTop: 'var(--space-lg)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-xs)', marginBottom: '8px', fontWeight: 600 }}>
-              <span>Level {currentLevel.level || 1}</span>
-              <span style={{ color: 'var(--text-muted)' }}>{Math.max(nextMin - profile.points, 0)} pts to Level {nextLevel.level || 2}</span>
-            </div>
-            <div className="progress-bar">
-              <div className="progress-value" style={{ width: `${progressPercent}%`, background: 'var(--primary)' }}></div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Badges Section */}
-      <div className="card" style={{ marginBottom: 'var(--space-lg)' }}>
-        <h2 style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-md)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Award size={20} color="var(--accent)" />
-          Earned Badges ({userBadges.length})
-        </h2>
-        
-        {userBadges.length > 0 ? (
-          <div className="grid-3" style={{ gap: 'var(--space-md)' }}>
-            {userBadges.map(badge => (
-              <div key={badge.id} style={{ 
-                border: '1px solid var(--border)', 
-                borderRadius: 'var(--radius-md)', 
-                padding: 'var(--space-md)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                textAlign: 'center',
-                background: 'var(--bg-secondary)'
-              }}>
-                <div style={{ fontSize: '32px', marginBottom: '8px' }}>{badge.icon}</div>
-                <div style={{ fontWeight: 700, fontSize: 'var(--text-sm)', color: badge.color, marginBottom: '4px' }}>{badge.name}</div>
-                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{badge.description}</div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div style={{ padding: 'var(--space-lg)', textAlign: 'center', color: 'var(--text-muted)', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)' }}>
-            No badges earned yet. Start reporting and verifying issues!
-          </div>
-        )}
-      </div>
-
-      {/* Settings Options */}
-      <div className="card">
-        <h2 style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-md)' }}>Preferences</h2>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {['Notifications', 'Privacy & Security', 'Language Settings', 'Help & Support'].map((item, idx) => (
-            <button key={item} style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              padding: 'var(--space-md) 0',
-              borderBottom: idx < 3 ? '1px solid var(--border)' : 'none',
-              background: 'none',
-              borderTop: 'none', borderLeft: 'none', borderRight: 'none',
-              cursor: 'pointer',
-              color: 'var(--text-primary)',
-              fontWeight: 600
-            }}>
-              {item}
-              <ChevronRight size={18} color="var(--text-muted)" />
-            </button>
-          ))}
-        </div>
-        </div>
-      </div>
-    </PageTransition>
+        <button
+          type="submit"
+          disabled={saving}
+          className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-60"
+        >
+          {saving ? 'Saving...' : 'Save Profile'}
+        </button>
+      </form>
+    </div>
   );
 }
