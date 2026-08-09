@@ -1,0 +1,25 @@
+.map-bg {
+    background-color: #e5e5e5;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuAz5pAk0l7U_2joYcbKxOm-erdUg3GCfAOxkC-UXbB6d8KnxHtlk4B4ZyzQXHGK2VZvwbcv-OYx2C22Dk-CxvK9heBLi2MjjX5Sq0D7pZOzFuMcGYRZ9ViZLh2TGc3lMkf61csDe0tqGT-WMDkYigs3fZMcCeKsFdq_RFJz6fHPhhhiO7_KRLKTQaGTmt199PepAhxnaBJxmsOAwbRzoIylAJINTiL9pqpg3-8oLQWgpv5ArkmNq97i);
+    background-size: cover;
+    background-position: center
+    }
+.glass-panel {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px)
+    }
+.bottom-sheet {
+    transform: translatey(calc(100% - 140px));
+    transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1)
+    }
+.bottom-sheet.expanded {
+    transform: translatey(0)
+    }
+/* Ambient Map Pin Glows */
+.pin-glow-amber {
+    box-shadow: 0 0 16px rgba(202, 134, 13, 0.4)
+    }
+.pin-glow-green {
+    box-shadow: 0 0 16px rgba(15, 157, 140, 0.4)
+    }
